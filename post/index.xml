@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on fsan</title>
-    <link>http://fsan.githubio.com/blog/post/</link>
+    <link>http://fsan.github.io/post/</link>
     <description>Recent content in Posts on fsan</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
     <lastBuildDate>Sat, 11 Jan 2020 14:22:46 -0300</lastBuildDate>
     
-	<atom:link href="http://fsan.githubio.com/blog/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://fsan.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Pyperaptor</title>
-      <link>http://fsan.githubio.com/blog/post/pyperaptor/</link>
+      <link>http://fsan.github.io/post/pyperaptor/</link>
       <pubDate>Sat, 11 Jan 2020 14:22:46 -0300</pubDate>
       
-      <guid>http://fsan.githubio.com/blog/post/pyperaptor/</guid>
+      <guid>http://fsan.github.io/post/pyperaptor/</guid>
       <description>Release 0.1.1
 PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way.</description>
     </item>
