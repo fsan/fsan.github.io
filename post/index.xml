@@ -21,7 +21,7 @@
       <description>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.
 TLDR;  Install pyperaptor Create Pipeline object Create Node(s) object(s) containing the function to be executed. Lock the Pipeline Execute the pipeline  Installation
 pip3 install pyperaptor Code
-my_steps = [ ... ] p = Pipeline(my_steps, parallel=True, workers=10) p.lock() results = p.process(my_input_genereator) Example      Introduction</description>
+my_steps = [ ... ] p = Pipeline(my_steps, parallel=True, workers=10) p.lock() results = p.process(my_input_generator) Example      Introduction</description>
     </item>
     
   </channel>
