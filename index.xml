@@ -18,8 +18,10 @@
       <pubDate>Sat, 11 Jan 2020 14:22:46 -0300</pubDate>
       
       <guid>//fsan.github.io/post/pyperaptor/</guid>
-      <description>Release 0.1.1
-PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way.</description>
+      <description>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.
+TLDR;  Install pyperaptor Create Pipeline object Create Node(s) object(s) containing the function to be executed. Lock the Pipeline Execute the pipeline  Installation
+pip3 install pyperaptor Code
+my_steps = [ ... ] p = Pipeline(my_steps, parallel=True, workers=10) p.lock() results = p.process(my_input_genereator) Example      Introduction</description>
     </item>
     
   </channel>

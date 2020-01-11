@@ -4,16 +4,14 @@
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pyperaptor - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:title" content="Pyperaptor" />
-<meta property="og:description" content="Release 0.1.1
-PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way." />
+<meta property="og:description" content="Quick multithreaded pipelines in python in one minute" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="//fsan.github.io/post/pyperaptor/" />
 <meta property="article:published_time" content="2020-01-11T14:22:46-03:00" />
 <meta property="article:modified_time" content="2020-01-11T14:22:46-03:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Pyperaptor"/>
-<meta name="twitter:description" content="Release 0.1.1
-PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way."/>
+<meta name="twitter:description" content="Quick multithreaded pipelines in python in one minute"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
 	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/normalize.css" />
@@ -40,18 +38,6 @@ PypeRaptor is a library that provides a functional pipeline structure. Each exec
 				<a href="/">Home</a>
 			</li>
 			
-			<li>
-				<a href="/posts">All posts</a>
-			</li>
-			
-			<li>
-				<a href="/about">About</a>
-			</li>
-			
-			<li>
-				<a href="/tags">Tags</a>
-			</li>
-			
 		</ul>
 	</nav>
 </div>
@@ -65,213 +51,195 @@ PypeRaptor is a library that provides a functional pipeline structure. Each exec
 		<div class="markdown">
 			
 
-<p><strong>Release 0.1.1</strong></p>
+<p>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.</p>
 
-<p>PypeRaptor is a library that provides a functional pipeline structure.
-Each execution from the pipeline takes an input item from beginning to end and return the result.
-The Pipeline may be modified by add operator and expects a Node.
-To execute a Pipeline for a single item, user can execute <strong>push</strong> function with item. This execution will pushes the input
-through the pipeline calling every function in the way.
-To execute several items, user can set an Iterable in <strong>process</strong> function.</p>
+<h2 id="tldr">TLDR;</h2>
 
-<p>A generator can be part of the pipeline, and is recommended to be the first item to when using Pipeline in parallel mode.
-When in parallel mode, PypeRaptor provides a Device as in a way to reserve resources and avoid racing conditions among its threads.</p>
+<ol>
+<li>Install pyperaptor</li>
+<li>Create Pipeline object</li>
+<li>Create Node(s) object(s) containing the function to be executed.</li>
+<li>Lock the Pipeline</li>
+<li>Execute the pipeline</li>
+</ol>
 
-<h2 id="installation">Installation</h2>
-<div class="highlight"><pre class="chroma"><code class="language-pip install pyperaptor ```" data-lang="pip install pyperaptor ```">## Quick guide
+<p><strong>Installation</strong></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pip3 install pyperaptor</code></pre></div>
+<p><strong>Code</strong></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">my_steps</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span> <span style="color:#f92672">...</span> <span style="color:#111">]</span>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_steps</span><span style="color:#111">,</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#111">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">my_input_genereator</span><span style="color:#111">)</span></code></pre></div>
+<h2 id="example">Example</h2>
 
-1. Create Pipeline object
-2. Create Node(s) object(s) containing the function to be executed.
-3. Lock the Pipeline
-4. Execute the pipeline
+<div>
+<center>
+<script src="https://asciinema.org/a/14.js" id="asciicast-293066" async data-autoplay="true" data-size="small" theme="dracula"></script>
+</center>
+</div>
 
-## Examples
+<h2 id="introduction">Introduction</h2>
 
-* Simplest example</code></pre></div>
-<p>python
-from pyperaptor import Pipeline, Node</p>
+<p><center>
+<img src="/assets/images/raptor.jpg" width="200">
+</center></p>
 
-<p>def sum1(x):
-    return x + 1</p>
+<p>A <strong>pipeline</strong> in PypeRaptor is a container that will carry inputs through the defined steps and return outputs.</p>
 
-<p>p = Pipeline()
-p += Node(sum1)</p>
+<p>Each pipeline is mainly construct by adding <strong>nodes</strong>. Each node is responsible for referencing an operation and is not aware of it&rsquo;s surroudings. Nodes in Pyperaptor does not care what type of object it is carrying inside but it must implement a <code>__call__()</code> method.</p>
 
-<p>p.lock()</p>
+<p>For example, you can use simple <strong>functions</strong>, <strong>lambdas</strong> or <strong>callable objects</strong>.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
 
-<p>result = p.push(2)
-print(result)</p>
+<span style="color:#00a8c8">class</span> <span style="color:#75af00">SomeObject</span><span style="color:#111">():</span>
+	<span style="color:#00a8c8">def</span> <span style="color:#111">__call__</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">,</span> <span style="color:#111">x</span><span style="color:#111">):</span>
+		<span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
-<h1 id="3">3</h1>
-<div class="highlight"><pre class="chroma">* Using process for multiple inputs</pre></div>
-<p>python
-from pyperaptor import Pipeline, Node</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">some_function</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+	<span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
-<p>def sum1(x):
-    return x + 1</p>
+<span style="color:#111">some_object_instance</span> <span style="color:#f92672">=</span> <span style="color:#111">SomeObject</span><span style="color:#111">()</span>
 
-<p>def a_generator():
-    for x in range(10):
-        yield x</p>
 
-<p>p = Pipeline()
-p += Node(sum1)</p>
+<span style="color:#111">my_pipeline</span> <span style="color:#f92672">=</span> <span style="color:#111">[]</span>
+	<span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">some_function</span><span style="color:#111">),</span>
+	<span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">x</span><span style="color:#111">),</span>
+	<span style="color:#111">some_object_instance</span>
+<span style="color:#111">]</span>
 
-<p>p.lock()</p>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipeline</span><span style="color:#111">)</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">push</span><span style="color:#111">(</span><span style="color:#ae81ff">1</span><span style="color:#111">)</span>
+<span style="color:#75715e"># 1</span></code></pre></div>
+<p><strong>Nodes</strong> can be added to the <strong>pipeline</strong> by <code>p.add</code> method or through the <code>+=</code> operator or in constructor.</p>
 
-<p>results = p.process(list(a_generator()))
-print(results)</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">some_method</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+	<span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
-<h1 id="1-2-3-4-5-6-7-8-9-10">[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</h1>
-<div class="highlight"><pre class="chroma">* Simple example using a generator inside the pipeline</pre></div>
-<p>python
-from pyperaptor import Pipeline, Node</p>
+<span style="color:#75715e"># Using constructor</span>
+<span style="color:#111">my_pipe</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span>
+	<span style="color:#111">some_method</span><span style="color:#111">,</span>
+	<span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">x</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span><span style="color:#111">)</span>
+<span style="color:#111">]</span>
 
-<p>def sum1(x):
-    return x + 1</p>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipe</span><span style="color:#111">)</span>
+</span>
+<span style="color:#75715e"># Adding iteratively or outside constructor</span>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">()</span>
 
-<p>def a_generator():
-    for x in range(10):
-        yield x</p>
+<span style="color:#75715e"># Adding using default .add method</span>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">some_method</span><span style="color:#111">)</span>
+</span>
+<span style="color:#75715e"># Using += operator</span>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">some_method</span><span style="color:#111">)</span>
+</span>
+<span style="color:#75715e"># Using a comprehension list</span>
+<span style="color:#111">function_list</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span>
+	<span style="color:#111">some_method</span><span style="color:#111">,</span>
+	<span style="color:#111">some_other_method</span>
+<span style="color:#111">]</span>
 
-<p>p = Pipeline()
-p += Node(a_generator) + <br />
-     sum1</p>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">[</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">func</span><span style="color:#111">)</span> <span style="color:#00a8c8">for</span> <span style="color:#111">func</span> <span style="color:#f92672">in</span> <span style="color:#111">function_list</span> <span style="color:#111">]</span>
+</span>
+<span style="color:#75715e">#Using map</span>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">,</span> <span style="color:#111">function_list</span><span style="color:#111">)</span></span></code></pre></div>
 
-<p>p.lock()</p>
+<p>The method <code>p.push()</code> will execute the whole pipe for one single item. Note that the pipeline must be locked with <code>p.lock()</code> before execution.
+For executing several item at once the <strong>pipeline</strong> provides the <code>p.process</code> method.</p>
 
-<p>results = p.process()
-print(results)</p>
+<p>When using <code>p.process</code>, data can be provided from outside or inside the <strong>pipeline</strong>.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">([</span><span style="color:#ae81ff">1</span><span style="color:#111">,</span> <span style="color:#ae81ff">2</span><span style="color:#111">,</span> <span style="color:#ae81ff">3</span><span style="color:#111">])</span> <span style="color:#75715e"># Using a list</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span> <span style="color:#75715e"># Using a generator</span></code></pre></div>
+<p>It is important to notice that as PypeRaptor multithreaded features appear, it becomes more interesting to add the generator to the pipeline itself.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00a8c8">def</span> <span style="color:#75af00">some_slow_generator</span><span style="color:#111">():</span>
+	<span style="color:#75715e"># doing something slow</span>
+	<span style="color:#00a8c8">return</span> <span style="color:#111">result</span>
 
-<h1 id="1-2-3-4-5-6-7-8-9-10-1">[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</h1>
-<div class="highlight"><pre class="chroma">* Making a pipeline parallel</pre></div>
-<p>python
-from pyperaptor import Pipeline, Node</p>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">()</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">some_slow_generator</span><span style="color:#111">)</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">some_function</span><span style="color:#111">)</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span></code></pre></div>
+<h2 id="going-multithread">Going multithread</h2>
 
-<p>def sum1(x):
-    return x + 1</p>
+<p>It is so hard going multithread that it will take you about 5 seconds</p>
 
-<p>def a_generator():
-    for x in range(10):
-        yield x</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#75715e"># a foo pipeline</span>
+<span style="color:#111">my_pipeline</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span>
+	<span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">x</span><span style="color:#111">),</span>
+	<span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">y</span><span style="color:#111">:</span> <span style="color:#111">y</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#111">)</span>
+<span style="color:#111">]</span>
 
-<p>p = Pipeline(parallel=True, workers=10)
-p += Node(a_generator) + <br />
-     sum1</p>
+<span style="color:#75715e"># Creating and executing a single thread pipeline</span>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipeline</span><span style="color:#111">)</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span>
 
-<p>p.lock()</p>
+<span style="color:#75715e"># Creating a multithread multithread</span>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipeline</span><span style="color:#111">,</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
+</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span></code></pre></div>
 
-<p>results = p.process()
-print(results)</p>
+<p><em>I guess it was easy. Right?</em></p>
 
-<h1 id="6-5-1-10-9-3-7-2-8-4">[6, 5, 1, 10, 9, 3, 7, 2, 8, 4]</h1>
-<div class="highlight"><pre class="chroma">* Using a Device to avoid racing condition
+<h2 id="dealing-with-racing-conditions">Dealing with racing conditions</h2>
 
-First, let&#39;s see the problem happening:</pre></div>
-<p>python
-from pyperaptor import Pipeline, Device, Node</p>
+<p>Race conditions may arise if some resource is used by more than one thread or process.
+For example:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Device</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
 
-<p>def sum1(x):
-    return x + 1</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">sum1</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 
-<p>def printer(x):
-    print(x, end=&rdquo; &ldquo;)
-    return x</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">printer</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">print</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">,</span> <span style="color:#111">end</span><span style="color:#f92672">=</span><span style="color:#d88200">&#34; &#34;</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
-<p>def a_generator():
-    for x in range(10):
-        yield x</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">a_generator</span><span style="color:#111">():</span>
+    <span style="color:#00a8c8">for</span> <span style="color:#111">x</span> <span style="color:#f92672">in</span> <span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">):</span>
+        <span style="color:#00a8c8">yield</span> <span style="color:#111">x</span>
 
-<p>p = Pipeline(parallel=True, workers=10)
-p += Node(sum1) + <br />
-     printer</p>
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#111">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
+<span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">sum1</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> \
+     <span style="color:#111">printer</span>
 
-<p>p.lock()</p>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">a_generator</span><span style="color:#111">())</span>
+<span style="color:#75715e"># 1 2 3 465 8  7 9 10</span></code></pre></div>
+<p>This example fails because the output device, in this case the <code>stdout</code> is being used bymany threads at same time.
+To solve this problem let&rsquo;s guarantee that this will not happen</p>
 
-<p>p.process(list(a_generator()))</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#00a8c8">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Device</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
+</span>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">sum1</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>
 
-<h1 id="1-2-3-465-8-7-9-10">1 2 3 465 8  7 9 10</h1>
-<div class="highlight"><pre class="chroma">The above output fails on spacing items because the terminal output is being used by many threads at same time.
-To solve this problem let&#39;s guarantee that this will not happen</pre></div>
-<p>python
-from pyperaptor import Pipeline, Device, Node</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">printer</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#111">print</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">,</span> <span style="color:#111">end</span><span style="color:#f92672">=</span><span style="color:#d88200">&#34; &#34;</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
-<p>def sum1(x):
-    return x + 1</p>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">a_generator</span><span style="color:#111">():</span>
+    <span style="color:#00a8c8">for</span> <span style="color:#111">x</span> <span style="color:#f92672">in</span> <span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">):</span>
+        <span style="color:#00a8c8">yield</span> <span style="color:#111">x</span>
+        
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">TERM</span> <span style="color:#f92672">=</span> <span style="color:#111">Device</span><span style="color:#111">(</span><span style="color:#d88200">&#34;term1&#34;</span><span style="color:#111">)</span>
+</span>        
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
+<span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">sum1</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> \
+<span style="display:block;width:100%;background-color:#e1e1e1">     <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">printer</span><span style="color:#111">,</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">TERM</span><span style="color:#111">)</span>
+</span>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 
-<p>def printer(x):
-    print(x, end=&rdquo; &ldquo;)
-    return x</p>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">a_generator</span><span style="color:#111">())</span>
+<span style="color:#75715e"># 1 2 3 4 5 10 7 8 9 6</span></code></pre></div>
 
-<p>def a_generator():
-    for x in range(10):
-        yield x</p>
+<p>A <strong>Device</strong> may have multiple resources available. For example a buffer with multiple writers, or a pool of resources or a hardware resource.
+If a <strong>node</strong> needs to acquire one resource, you can use a <strong>Device</strong> specifying how many are available. The default is 1.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">ANY_RESOURCE</span> <span style="color:#f92672">=</span> <span style="color:#111">Device</span><span style="color:#111">(</span><span style="color:#d88200">&#34;Some Name&#34;</span><span style="color:#111">,</span> <span style="color:#ae81ff">5</span><span style="color:#111">)</span>
 
-<p>TERM = Device(&ldquo;term1&rdquo;)</p>
-
-<p>p = Pipeline(parallel=True, workers=10)
-p += Node(sum1) + <br />
-     Node(printer, dev=TERM)</p>
-
-<p>p.lock()</p>
-
-<p>p.process(list(a_generator()))</p>
-
-<h1 id="1-2-3-4-5-10-7-8-9-6">1 2 3 4 5 10 7 8 9 6</h1>
-<div class="highlight"><pre class="chroma">## Other features
-
-* Hold and Refer
-In single thread mode, you can refer to another item result if you name it and refer to it with *refer* and *hold* parameter</pre></div>
-<p>python
-from pyperaptor import Pipeline, Node</p>
-
-<p>def sum1(x):
-    return x + 1</p>
-
-<p>def printer(*x):
-    print(*x)
-    return x</p>
-
-<p>p = Pipeline()
-p += Node(sum1, keyName=&ldquo;sum1_result&rdquo;, hold=True) + <br />
-     Node(printer, refer=[&ldquo;sum1_result&rdquo;])</p>
-
-<p>p.lock()
-p.process(list(range(10)))</p>
-
-<h1 id="1-1">1 1</h1>
-
-<h1 id="2-2">2 2</h1>
-
-<h1 id="3-3">3 3</h1>
-
-<h1 id="4-4">4 4</h1>
-
-<h1 id="toc_11">&hellip;</h1>
-<div class="highlight"><pre class="chroma">The first output for printer comes from the result of sum1 itself and the second output was recovered from *refer* and appended to *args
-
-* Multiple Devices
-The Device entity may have multiple resources available. You can treat Device as a semaphore, and pass a number of available resources in the parameter
-
-**Think in Devices as wrappers for Semaphores (because they are)**</pre></div>
-<p>python</p>
-
-<p>ANY_RESOURCE = Device(&ldquo;Some Name&rdquo;, 5)</p>
-
-<p>p = Pipeline()
-p += Node(a_function) + <br />
-     Node(other_function, dev=ANY_RESOURCE)</p>
-
-<p>```</p>
-
-<h2 id="pyperaptor-algebrae">PypeRaptor algebrae</h2>
-
-<ul>
-<li>Pipeline + Node = Pipeline.add(Node)</li>
-<li>Pipeline + Pipeline = Pipeline.add(Pipeline)</li>
-<li>NodeA + NodeB = Pipeline.add(NodeA) + NodeB</li>
-</ul>
-
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">()</span>
+<span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">a_function</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> \
+     <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">other_function</span><span style="color:#111">,</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">ANY_RESOURCE</span><span style="color:#111">)</span></code></pre></div>
 		</div>
 
 		<div class="post-tags">
@@ -299,8 +267,8 @@ p += Node(a_function) + <br />
 </div>
 	<div class="footer wrapper">
 	<nav class="nav">
-		<div> © 2020 
-			 
+		<div> © 2020 | 
+			<a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div> 
 	</nav>
 </div>
 
