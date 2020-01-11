@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pyperaptor - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Pyperaptor" />
+<meta property="og:description" content="Release 0.1.1
+PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://fsan.githubio.com/blog/post/pyperaptor/" />
+<meta property="article:published_time" content="2020-01-11T14:22:46-03:00" />
+<meta property="article:modified_time" content="2020-01-11T14:22:46-03:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pyperaptor"/>
+<meta name="twitter:description" content="Release 0.1.1
+PypeRaptor is a library that provides a functional pipeline structure. Each execution from the pipeline takes an input item from beginning to end and return the result. The Pipeline may be modified by add operator and expects a Node. To execute a Pipeline for a single item, user can execute push function with item. This execution will pushes the input through the pipeline calling every function in the way."/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fsan.githubio.com/blogcss/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="http://fsan.githubio.com/blogcss/main.css" />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="http://fsan.githubio.com/blogjs/main.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="http://fsan.githubio.com/blog">fsan</a></h1>
+	<div class="site-description"><h2></h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/fsan" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="/blog/">Home</a>
+			</li>
+			
+			<li>
+				<a href="/blog/posts">All posts</a>
+			</li>
+			
+			<li>
+				<a href="/blog/about">About</a>
+			</li>
+			
+			<li>
+				<a href="/blog/tags">Tags</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Pyperaptor</h1>
+			<div class="meta">Posted at &mdash; Jan 11, 2020</div>
+		</div>
+
+		<div class="markdown">
+			
+
+<p><strong>Release 0.1.1</strong></p>
+
+<p>PypeRaptor is a library that provides a functional pipeline structure.
+Each execution from the pipeline takes an input item from beginning to end and return the result.
+The Pipeline may be modified by add operator and expects a Node.
+To execute a Pipeline for a single item, user can execute <strong>push</strong> function with item. This execution will pushes the input
+through the pipeline calling every function in the way.
+To execute several items, user can set an Iterable in <strong>process</strong> function.</p>
+
+<p>A generator can be part of the pipeline, and is recommended to be the first item to when using Pipeline in parallel mode.
+When in parallel mode, PypeRaptor provides a Device as in a way to reserve resources and avoid racing conditions among its threads.</p>
+
+<h2 id="installation">Installation</h2>
+<div class="highlight"><pre class="chroma"><code class="language-pip install pyperaptor ```" data-lang="pip install pyperaptor ```">## Quick guide
+
+1. Create Pipeline object
+2. Create Node(s) object(s) containing the function to be executed.
+3. Lock the Pipeline
+4. Execute the pipeline
+
+## Examples
+
+* Simplest example</code></pre></div>
+<p>python
+from pyperaptor import Pipeline, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>p = Pipeline()
+p += Node(sum1)</p>
+
+<p>p.lock()</p>
+
+<p>result = p.push(2)
+print(result)</p>
+
+<h1 id="3">3</h1>
+<div class="highlight"><pre class="chroma">* Using process for multiple inputs</pre></div>
+<p>python
+from pyperaptor import Pipeline, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def a_generator():
+    for x in range(10):
+        yield x</p>
+
+<p>p = Pipeline()
+p += Node(sum1)</p>
+
+<p>p.lock()</p>
+
+<p>results = p.process(list(a_generator()))
+print(results)</p>
+
+<h1 id="1-2-3-4-5-6-7-8-9-10">[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</h1>
+<div class="highlight"><pre class="chroma">* Simple example using a generator inside the pipeline</pre></div>
+<p>python
+from pyperaptor import Pipeline, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def a_generator():
+    for x in range(10):
+        yield x</p>
+
+<p>p = Pipeline()
+p += Node(a_generator) + <br />
+     sum1</p>
+
+<p>p.lock()</p>
+
+<p>results = p.process()
+print(results)</p>
+
+<h1 id="1-2-3-4-5-6-7-8-9-10-1">[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</h1>
+<div class="highlight"><pre class="chroma">* Making a pipeline parallel</pre></div>
+<p>python
+from pyperaptor import Pipeline, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def a_generator():
+    for x in range(10):
+        yield x</p>
+
+<p>p = Pipeline(parallel=True, workers=10)
+p += Node(a_generator) + <br />
+     sum1</p>
+
+<p>p.lock()</p>
+
+<p>results = p.process()
+print(results)</p>
+
+<h1 id="6-5-1-10-9-3-7-2-8-4">[6, 5, 1, 10, 9, 3, 7, 2, 8, 4]</h1>
+<div class="highlight"><pre class="chroma">* Using a Device to avoid racing condition
+
+First, let&#39;s see the problem happening:</pre></div>
+<p>python
+from pyperaptor import Pipeline, Device, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def printer(x):
+    print(x, end=&rdquo; &ldquo;)
+    return x</p>
+
+<p>def a_generator():
+    for x in range(10):
+        yield x</p>
+
+<p>p = Pipeline(parallel=True, workers=10)
+p += Node(sum1) + <br />
+     printer</p>
+
+<p>p.lock()</p>
+
+<p>p.process(list(a_generator()))</p>
+
+<h1 id="1-2-3-465-8-7-9-10">1 2 3 465 8  7 9 10</h1>
+<div class="highlight"><pre class="chroma">The above output fails on spacing items because the terminal output is being used by many threads at same time.
+To solve this problem let&#39;s guarantee that this will not happen</pre></div>
+<p>python
+from pyperaptor import Pipeline, Device, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def printer(x):
+    print(x, end=&rdquo; &ldquo;)
+    return x</p>
+
+<p>def a_generator():
+    for x in range(10):
+        yield x</p>
+
+<p>TERM = Device(&ldquo;term1&rdquo;)</p>
+
+<p>p = Pipeline(parallel=True, workers=10)
+p += Node(sum1) + <br />
+     Node(printer, dev=TERM)</p>
+
+<p>p.lock()</p>
+
+<p>p.process(list(a_generator()))</p>
+
+<h1 id="1-2-3-4-5-10-7-8-9-6">1 2 3 4 5 10 7 8 9 6</h1>
+<div class="highlight"><pre class="chroma">## Other features
+
+* Hold and Refer
+In single thread mode, you can refer to another item result if you name it and refer to it with *refer* and *hold* parameter</pre></div>
+<p>python
+from pyperaptor import Pipeline, Node</p>
+
+<p>def sum1(x):
+    return x + 1</p>
+
+<p>def printer(*x):
+    print(*x)
+    return x</p>
+
+<p>p = Pipeline()
+p += Node(sum1, keyName=&ldquo;sum1_result&rdquo;, hold=True) + <br />
+     Node(printer, refer=[&ldquo;sum1_result&rdquo;])</p>
+
+<p>p.lock()
+p.process(list(range(10)))</p>
+
+<h1 id="1-1">1 1</h1>
+
+<h1 id="2-2">2 2</h1>
+
+<h1 id="3-3">3 3</h1>
+
+<h1 id="4-4">4 4</h1>
+
+<h1 id="toc_11">&hellip;</h1>
+<div class="highlight"><pre class="chroma">The first output for printer comes from the result of sum1 itself and the second output was recovered from *refer* and appended to *args
+
+* Multiple Devices
+The Device entity may have multiple resources available. You can treat Device as a semaphore, and pass a number of available resources in the parameter
+
+**Think in Devices as wrappers for Semaphores (because they are)**</pre></div>
+<p>python</p>
+
+<p>ANY_RESOURCE = Device(&ldquo;Some Name&rdquo;, 5)</p>
+
+<p>p = Pipeline()
+p += Node(a_function) + <br />
+     Node(other_function, dev=ANY_RESOURCE)</p>
+
+<p>```</p>
+
+<h2 id="pyperaptor-algebrae">PypeRaptor algebrae</h2>
+
+<ul>
+<li>Pipeline + Node = Pipeline.add(Node)</li>
+<li>Pipeline + Pipeline = Pipeline.add(Pipeline)</li>
+<li>NodeA + NodeB = Pipeline.add(NodeA) + NodeB</li>
+</ul>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'fabiosancinetti';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+		Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> © 2020 
+			 
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-3512812-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>feather.replace()</script>
+</body>
+</html>
