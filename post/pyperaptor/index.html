@@ -2,15 +2,15 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pyperaptor - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta property="og:title" content="Pyperaptor" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>PypeRaptor - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="PypeRaptor" />
 <meta property="og:description" content="Quick multithreaded pipelines in python in one minute" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="//fsan.github.io/post/pyperaptor/" />
 <meta property="article:published_time" content="2020-01-11T14:22:46-03:00" />
 <meta property="article:modified_time" content="2020-01-11T14:22:46-03:00" />
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Pyperaptor"/>
+<meta name="twitter:title" content="PypeRaptor"/>
 <meta name="twitter:description" content="Quick multithreaded pipelines in python in one minute"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
@@ -48,7 +48,7 @@
 
 
 		<div class="post-header">
-			<h1 class="title">Pyperaptor</h1>
+			<h1 class="title">PypeRaptor</h1>
 			<div class="meta">Posted at &mdash; Jan 11, 2020</div>
 		</div>
 
@@ -90,7 +90,7 @@
 
 <p>A <strong>pipeline</strong> in PypeRaptor is a container that will carry inputs through the defined steps and return outputs.</p>
 
-<p>Each pipeline is mainly construct by adding <strong>nodes</strong>. Each node is responsible for referencing an operation and is not aware of it&rsquo;s surroudings. Nodes in Pyperaptor does not care what type of object it is carrying inside but it must implement a <code>__call__()</code> method.</p>
+<p>Each pipeline is mainly construct by adding <strong>nodes</strong>. Each node is responsible for referencing an operation and is not aware of it&rsquo;s surroudings. Nodes in PypeRaptor does not care what type of object it is carrying inside but it must implement a <code>__call__()</code> method.</p>
 
 <p>For example, you can use simple <strong>functions</strong>, <strong>lambdas</strong> or <strong>callable objects</strong>.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
@@ -146,7 +146,7 @@
 <span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">[</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">func</span><span style="color:#111">)</span> <span style="color:#00a8c8">for</span> <span style="color:#111">func</span> <span style="color:#f92672">in</span> <span style="color:#111">function_list</span> <span style="color:#111">]</span>
 </span>
 <span style="color:#75715e">#Using map</span>
-<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">,</span> <span style="color:#111">function_list</span><span style="color:#111">)</span></span></code></pre></div>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">list</span><span style="color:#111">(</span><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">,</span> <span style="color:#111">function_list</span><span style="color:#111">))</span></span></code></pre></div>
 
 <p>The method <code>p.push()</code> will execute the whole pipe for one single item. Note that the pipeline must be locked with <code>p.lock()</code> before execution.
 For executing several item at once the <strong>pipeline</strong> provides the <code>p.process</code> method.</p>
@@ -244,6 +244,133 @@ If a <strong>node</strong> needs to acquire one resource, you can use a <strong>
 <span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">()</span>
 <span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">a_function</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> \
      <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">other_function</span><span style="color:#111">,</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">ANY_RESOURCE</span><span style="color:#111">)</span></code></pre></div>
+<h2 id="integrating-multiple-pipelines">Integrating multiple Pipelines</h2>
+
+<p>It is possible to use PypeRaptor <strong>Pipelines</strong> inside PypeRaptor <strong>Pipelines</strong>.
+This may be useful for organizing and scaling processing where it matters.</p>
+
+<p>Check the following ludic siutation:
+You may take awhile to generate enough information to send to some other job.
+But once you start you want it all done as fast as possible.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Device</span><span style="color:#111">,</span> <span style="color:#111">Node</span><span style="color:#111">,</span> <span style="color:#111">Pipeline</span>
+<span style="color:#f92672">import</span> <span style="color:#111">time</span><span style="color:#f92672">,</span> <span style="color:#111">copy</span><span style="color:#f92672">,</span> <span style="color:#111">threading</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">heavy_work</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#75715e"># doing something heavy</span>
+    <span style="color:#111">time</span><span style="color:#f92672">.</span><span style="color:#111">sleep</span><span style="color:#111">(</span><span style="color:#ae81ff">1</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">print</span><span style="color:#111">(</span><span style="color:#d88200">&#34;doing heavy work at &#34;</span><span style="color:#111">,</span> <span style="color:#111">threading</span><span style="color:#f92672">.</span><span style="color:#111">current_thread</span><span style="color:#111">()</span><span style="color:#f92672">.</span><span style="color:#111">name</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">True</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">wrapper</span><span style="color:#111">(</span><span style="color:#111">x</span> <span style="color:#f92672">=</span> <span style="color:#111">None</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">if</span> <span style="color:#111">x</span><span style="color:#111">:</span>
+        <span style="color:#00a8c8">return</span> <span style="color:#111">heavy_work</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">)</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">slow_number_yielder</span><span style="color:#111">():</span>
+    <span style="color:#00a8c8">for</span> <span style="color:#111">a</span> <span style="color:#f92672">in</span> <span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">5</span><span style="color:#111">):</span>
+        <span style="color:#111">time</span><span style="color:#f92672">.</span><span style="color:#111">sleep</span><span style="color:#111">(</span><span style="color:#ae81ff">0.2</span><span style="color:#111">)</span>
+        <span style="color:#00a8c8">yield</span> <span style="color:#111">a</span>
+        
+<span style="color:#00a8c8">class</span> <span style="color:#75af00">Buffer</span><span style="color:#111">():</span>
+    <span style="color:#00a8c8">def</span> <span style="color:#111">__init__</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">,</span> <span style="color:#111">limit_break</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span><span style="color:#111">):</span>
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">__lim__</span> <span style="color:#f92672">=</span> <span style="color:#111">limit_break</span>
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span> <span style="color:#f92672">=</span> <span style="color:#111">[]</span>
+        
+    <span style="color:#00a8c8">def</span> <span style="color:#111">__call__</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">,</span> <span style="color:#111">x</span><span style="color:#111">):</span>
+        <span style="color:#00a8c8">print</span><span style="color:#111">(</span><span style="color:#d88200">&#34;calling buffer&#34;</span><span style="color:#111">)</span>
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span><span style="color:#f92672">.</span><span style="color:#111">append</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">)</span>
+        <span style="color:#00a8c8">if</span> <span style="color:#111">len</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span><span style="color:#111">)</span> <span style="color:#f92672">==</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">__lim__</span> <span style="color:#111">:</span>
+            <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span><span style="color:#f92672">.</span><span style="color:#111">append</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">)</span>
+            <span style="color:#111">c</span> <span style="color:#f92672">=</span> <span style="color:#111">copy</span><span style="color:#f92672">.</span><span style="color:#111">deepcopy</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span><span style="color:#111">)</span>
+            <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">elems</span><span style="color:#f92672">.</span><span style="color:#111">clear</span><span style="color:#111">()</span>
+            <span style="color:#00a8c8">return</span> <span style="color:#111">c</span>
+
+<span style="color:#111">BUFFER</span> <span style="color:#f92672">=</span> <span style="color:#111">Device</span><span style="color:#111">(</span><span style="color:#d88200">&#34;buffer&#34;</span><span style="color:#111">)</span>
+        
+<span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">([</span><span style="color:#111">wrapper</span><span style="color:#111">],</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#111">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5</span><span style="color:#111">)</span>
+
+<span style="color:#111">fs</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span>
+    <span style="color:#111">slow_number_yielder</span><span style="color:#111">,</span>
+    <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">Buffer</span><span style="color:#111">(),</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">BUFFER</span><span style="color:#111">),</span>
+    <span style="color:#111">p</span>
+<span style="color:#111">]</span>
+
+<span style="color:#111">q</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">fs</span><span style="color:#111">)</span>
+
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+
+<span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span></code></pre></div>
+<p>This will yield the following output:</p>
+
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">calling buffer
+calling buffer
+calling buffer
+calling buffer
+calling buffer
+<span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_0
+</span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_2
+</span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_1
+</span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_3
+</span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_4</span></code></pre></div>
+
+<p>The highlighted area is done is parallel as indicated by the names of ThreadPoolExecutors.</p>
+
+<h2 id="joining-multithread-pipelines">Joining multithread pipelines</h2>
+
+<p>If you wish to scale threads in a tree-fashion way you may join different pipelines with different threads.
+In the following example the first pipeline <code>q</code> will generate a hundred of elements to be processed by the
+second pipeline <code>p</code>.
+This will cause 10 threads to be launched in your system. <code>(number of parent threads) ** (number of child threads) + (one management thread per pipeline)</code> <code>(2**3) + 2</code></p>
+
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">sum_set</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">)</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">minus1</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">identity</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">get_hundred_of</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">[</span><span style="color:#111">x</span><span style="color:#111">]</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>
+
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">([</span><span style="color:#111">minus1</span><span style="color:#111">],</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">3</span><span style="color:#111">)</span>
+</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">q</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">([</span><span style="color:#111">get_hundred_of</span><span style="color:#111">,</span> <span style="color:#111">p</span><span style="color:#111">,</span> <span style="color:#111">sum_set</span><span style="color:#111">],</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">2</span><span style="color:#111">)</span>
+</span><span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
+<span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">([</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">*</span><span style="color:#ae81ff">100</span><span style="color:#111">))</span></span></code></pre></div>
+
+<h2 id="change-log">Change Log</h2>
+
+<h3 id="pyperaptor-0-1-3-https-github-com-fsan-pyperaptor-releases-tag-0-1-3"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.3">PypeRaptor 0.1.3</a></h3>
+
+<ul>
+<li>Normalize pipeline to pipeline integration. Now it is easier and more intuitive to integrate one <strong>Pipeline</strong> into another</li>
+<li>Added travis CI integration</li>
+</ul>
+
+<h3 id="pyperaptor-0-1-2-https-github-com-fsan-pyperaptor-releases-tag-0-1-2"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.2">PypeRaptor 0.1.2</a></h3>
+
+<ul>
+<li>Added alternative to provide list of function into constructor</li>
+</ul>
+
+<h3 id="pyperaptor-0-1-1-https-github-com-fsan-pyperaptor-releases-tag-0-1-1"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.1">PypeRaptor 0.1.1</a></h3>
+
+<ul>
+<li>First official release</li>
+</ul>
+
+<h3 id="pyperaptor-0-1-0-https-github-com-fsan-pyperaptor-releases-tag-0-1-0"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.0">PypeRaptor 0.1.0</a></h3>
+
+<ul>
+<li>Pipelines with multithread support by configuration</li>
+<li>Structured approach for creating pipelines</li>
+<li>PypeRaptor algebra ( pipe = node + node, pipe += node )</li>
+<li>Beta release</li>
+</ul>
+
 		</div>
 
 		<div class="post-tags">
