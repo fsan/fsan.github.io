@@ -2,11 +2,11 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Emscripten and WebAssembly - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Emscripten and WebAssembly - https-fsan-github-io</title><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta property="og:title" content="Emscripten and WebAssembly" />
 <meta property="og:description" content="Making wasm easier with Emscripten" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://fsan.github.io/post/emscripten_and_webassembly/" />
+<meta property="og:url" content="//fsan.github.io/post/emscripten_and_webassembly/" />
 <meta property="article:published_time" content="2020-01-26T13:56:09-03:00" />
 <meta property="article:modified_time" content="2020-01-26T13:56:09-03:00" />
 <meta name="twitter:card" content="summary"/>
@@ -14,18 +14,18 @@
 <meta name="twitter:description" content="Making wasm easier with Emscripten"/>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
 
-	<link rel="stylesheet" type="text/css" media="screen" href="https://fsan.github.io/css/normalize.css" />
-	<link rel="stylesheet" type="text/css" media="screen" href="https://fsan.github.io/css/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/main.css" />
 
 	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-	<script src="https://fsan.github.io/js/main.js"></script>
+	<script src="//fsan.github.io/js/main.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 
 <body>
 	<div class="container wrapper post">
 		<div class="header">
-	<h1 class="site-title"><a href="https://fsan.github.io/">fsan</a></h1>
+	<h1 class="site-title"><a href="//fsan.github.io/">https-fsan-github-io</a></h1>
 	<div class="site-description"><h2></h2><nav class="nav social">
 			<ul class="flat"><a href="https://github.com/fsan" title="Github"><i data-feather="github"></i></a></ul>
 		</nav>
@@ -35,11 +35,11 @@
 		<ul class="flat">
 			
 			<li>
-				<a href="../../">Home</a>
+				<a href="/">Home</a>
 			</li>
 			
 			<li>
-				<a href="../../post/pyperaptor">PypeRaptor</a>
+				<a href="/post/pyperaptor">PypeRaptor</a>
 			</li>
 			
 		</ul>
@@ -58,7 +58,7 @@
 <h2 id="webassembly">WebAssembly</h2>
 
 <p><center>
-<img src="../../assets/images/webassembly.png" width="200"/>
+<img src="/assets/images/webassembly.png" width="200"/>
 </center></p>
 
 <p>WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.</p>
@@ -87,7 +87,7 @@ width="480" border="0" /></a></p>
 
 <p>Before your attention span is gone, let see it is working.
 As it seems everybody is raytracing let&rsquo;s do it too because we can.
-I followed <a href="https://github.com/RayTracing/raytracing.github.io"><strong>Raytracing in One Weekend</strong></a> and got this nice <strong><a href="../../assets/pages/wasm1/index.html">DEMO</a></strong> working in WebAssembly.</p>
+I followed <a href="https://github.com/RayTracing/raytracing.github.io"><strong>Raytracing in One Weekend</strong></a> and got this nice <strong><a href="/assets/pages/wasm1/index.html">DEMO</a></strong> working in WebAssembly.</p>
 
 <p>My <a href="https://github.com/fsan/fsan.github.io/tree/master/assets/pages/wasm1">source code</a> is ugly but it&rsquo;s quite easy too follow if you&rsquo;ve read Peter&rsquo;s book. This is not intended for you to reading, but there is always someone that may feel curious.</p>
 
@@ -95,7 +95,7 @@ I followed <a href="https://github.com/RayTracing/raytracing.github.io"><strong>
 
 <p>It should generate an output like this:</p>
 
-<p><img src="../../assets/images/raytracing.jpg" width="100%"/></p>
+<p><img src="/assets/images/raytracing.jpg" width="100%"/></p>
 
 <p>Raytracing may generate realistic images because they rely on a &ldquo;simulation&rdquo; of how lightinteract with objects, but this will be subject for another post. But in summary, for every pixel we should a ray and check whether it hits a surface or not. So for a 640x480 wewill have more than 300K rays shot at minimum, but when a ray hits an object it will scatter in different directions with different possibly with different intensities and will possibly hitting other objects and may bounce and scatter again. Still with me ? What I mean it is <strong>compute-intensive</strong>.</p>
 
@@ -254,7 +254,7 @@ declare i32 @printf(i8*, ...) #2</pre></div>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run --rm -ti -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src trzeci/emscripten emcc -lm -o hello.js hello.c
 $ ls
 hello.c  hello.js  hello.wasm</code></pre></div>
-<p><a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts"><img src="../../assets/images/wasm-flow.png"/></a></p>
+<p><a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts"><img src="/assets/images/wasm-flow.png"/></a></p>
 
 <p>This &ldquo;glue&rdquo; code has about 2.5k lines of code. It exports a Module var which can be accessed from HTML which allows execution of wasm and some other functionalities.
 Emscripten can generate some glue code to be used inside node easily.</p>
