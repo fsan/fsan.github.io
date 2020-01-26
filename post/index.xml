@@ -7,10 +7,22 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Sat, 11 Jan 2020 14:22:46 -0300</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jan 2020 13:56:09 -0300</lastBuildDate>
     
 	<atom:link href="//fsan.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Emscripten and WebAssembly</title>
+      <link>//fsan.github.io/post/emscripten_and_webassembly/</link>
+      <pubDate>Sun, 26 Jan 2020 13:56:09 -0300</pubDate>
+      
+      <guid>//fsan.github.io/post/emscripten_and_webassembly/</guid>
+      <description>WebAssembly  
+WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.
+WebAssemly uses modules as the distributable, loadable, and executable unit of code. Multiple module instances can access the same shared state which is the basis for dynamic linking in WebAssembly (source).
+Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using LLVM, that lets you run C and C++ on the web at near-native speed without plugins (source).</description>
+    </item>
     
     <item>
       <title>PypeRaptor</title>

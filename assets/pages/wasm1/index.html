@@ -1,0 +1,149 @@
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+</head>
+<body>
+  <canvas id="canvas" oncontextmenu="event.preventDefault()" style="border:0px solid #000000; background-color: #f3fff3;" width="600" height="200" tabindex=-1></canvas>
+  <br>
+<textarea id="output" rows="8" cols="70"></textarea>
+
+<div class="spinner" id='spinner'></div>
+<br>
+<progress value="0" max="100" id="progress" hidden=1></progress>
+<br>
+<div class="emscripten" id="status">Downloading...</div>
+<br>
+<button id="render"  style="  display: block; width: 50%;
+padding: 14px 28px;  font-size: 16px;  cursor: pointer;  text-align: center;" onclick="javascript:render()">
+	Render
+	</button>
+
+<script type='text/javascript'>
+  var statusElement = document.getElementById('status');
+  var progressElement = document.getElementById('progress');
+  var spinnerElement = document.getElementById('spinner');
+
+  var Module = {
+	preRun: [],
+	postRun: [],
+	print: (function() {
+	  var element = document.getElementById('output');
+	  if (element) element.value = ''; // clear browser cache
+	  return function(text) {
+		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+		// These replacements are necessary if you render to raw HTML
+		//text = text.replace(/&/g, "&amp;");
+		//text = text.replace(/</g, "&lt;");
+		//text = text.replace(/>/g, "&gt;");
+		//text = text.replace('\n', '<br>', 'g');
+		console.log(text);
+		if (element) {
+		  element.value += text + "\n";
+		  element.scrollTop = element.scrollHeight; // focus on bottom
+		}
+	  };
+	})(),
+	printErr: function(text) {
+	  if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+	  console.error(text);
+	},
+	canvas: (function() {
+	  var canvas = document.getElementById('canvas');
+
+	  // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+	  // application robust, you may want to override this behavior before shipping!
+	  // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+	  canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+
+	  return canvas;
+	})(),
+	setStatus: function(text) {
+	  if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+	  if (text === Module.setStatus.last.text) return;
+	  var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+	  var now = Date.now();
+	  if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+	  Module.setStatus.last.time = now;
+	  Module.setStatus.last.text = text;
+	  if (m) {
+		text = m[1];
+		progressElement.value = parseInt(m[2])*100;
+		progressElement.max = parseInt(m[4])*100;
+		progressElement.hidden = false;
+		spinnerElement.hidden = false;
+	  } else {
+		progressElement.value = null;
+		progressElement.max = null;
+		progressElement.hidden = true;
+		if (!text) spinnerElement.style.display = 'none';
+	  }
+	  statusElement.innerHTML = text;
+	},
+	totalDependencies: 0,
+	monitorRunDependencies: function(left) {
+	  this.totalDependencies = Math.max(this.totalDependencies, left);
+	  Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+	}
+  };
+  Module.setStatus('Downloading...');
+  window.onerror = function(event) {
+	// TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+	Module.setStatus('Exception thrown, see JavaScript console');
+	spinnerElement.style.display = 'none';
+	Module.setStatus = function(text) {
+	  if (text) Module.printErr('[post-exception status] ' + text);
+	};
+  };
+
+
+
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function render(){
+	Module.print("started render\n");
+	render2().then(Module.print("done"));
+
+}
+function render2() {
+																			  return new Promise((resolve, reject) => {
+	var c = document.getElementById("canvas");
+	var ctx = c.getContext("2d");
+
+	let siz = Module.ccall('d','number',null);
+	console.log("siz",siz);
+	var mem = Module._malloc(siz);//+1589);
+	Module.ccall('render',null,['number'],[mem]);
+
+	var lines = Module.ccall('height','number',null);
+	var cols = Module.ccall('width','number',null);
+    console.log('lines',lines,'cols',cols);
+
+    let z = siz; //cols*lines*4;
+	var x = new Uint8ClampedArray(Module.HEAPU8.subarray(mem, mem+z));
+
+    ctx.canvas.width  = cols;
+    ctx.canvas.height = lines;
+
+	let imd = new ImageData(x, cols, lines); 
+	ctx.putImageData(imd,0,0);
+});
+
+
+	}
+
+    </script>
+
+<!--
+--> 
+
+	       <script async type="text/javascript" src="hello.js"></script>
+	</body>
+</html>
