@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>fsan</title>
-    <link>//fsan.github.io/</link>
+    <link>https://fsan.github.io/</link>
     <description>Recent content on fsan</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
     <lastBuildDate>Sun, 26 Jan 2020 13:56:09 -0300</lastBuildDate>
     
-	<atom:link href="//fsan.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://fsan.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Emscripten and WebAssembly</title>
-      <link>//fsan.github.io/post/emscripten_and_webassembly/</link>
+      <link>https://fsan.github.io/post/emscripten_and_webassembly/</link>
       <pubDate>Sun, 26 Jan 2020 13:56:09 -0300</pubDate>
       
-      <guid>//fsan.github.io/post/emscripten_and_webassembly/</guid>
+      <guid>https://fsan.github.io/post/emscripten_and_webassembly/</guid>
       <description>WebAssembly  
 WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.
 WebAssemly uses modules as the distributable, loadable, and executable unit of code. Multiple module instances can access the same shared state which is the basis for dynamic linking in WebAssembly (source).
@@ -26,10 +26,10 @@ Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using L
     
     <item>
       <title>PypeRaptor</title>
-      <link>//fsan.github.io/post/pyperaptor/</link>
+      <link>https://fsan.github.io/post/pyperaptor/</link>
       <pubDate>Sat, 11 Jan 2020 14:22:46 -0300</pubDate>
       
-      <guid>//fsan.github.io/post/pyperaptor/</guid>
+      <guid>https://fsan.github.io/post/pyperaptor/</guid>
       <description>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.
 TLDR;  Install pyperaptor Create Pipeline object Create Node(s) object(s) containing the function to be executed. Lock the Pipeline Execute the pipeline  Installation
 pip3 install pyperaptor Code
