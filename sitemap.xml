@@ -3,17 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>//fsan.github.io/post/emscripten_and_webassembly/</loc>
-    <lastmod>2020-01-26T13:56:09-03:00</lastmod>
-  </url>
-  
-  <url>
     <loc>//fsan.github.io/</loc>
-    <lastmod>2020-01-26T13:56:09-03:00</lastmod>
+    <lastmod>2020-02-16T18:24:28-03:00</lastmod>
   </url>
   
   <url>
     <loc>//fsan.github.io/post/</loc>
+    <lastmod>2020-02-16T18:24:28-03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>//fsan.github.io/post/sdl2_and_cuda_on_c&#43;&#43;/</loc>
+    <lastmod>2020-02-16T18:24:28-03:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>//fsan.github.io/post/emscripten_and_webassembly/</loc>
     <lastmod>2020-01-26T13:56:09-03:00</lastmod>
   </url>
   

@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Sun, 26 Jan 2020 13:56:09 -0300</lastBuildDate>
+    <lastBuildDate>Sun, 16 Feb 2020 18:24:28 -0300</lastBuildDate>
     
 	<atom:link href="//fsan.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>SDL2 and CUDA On C&#43;&#43;</title>
+      <link>//fsan.github.io/post/sdl2_and_cuda_on_c&#43;&#43;/</link>
+      <pubDate>Sun, 16 Feb 2020 18:24:28 -0300</pubDate>
+      
+      <guid>//fsan.github.io/post/sdl2_and_cuda_on_c&#43;&#43;/</guid>
+      <description>As I want to learn more about CUDA, I was digging around for some base project for rendering CUDA content to screen without much overhead and I found none trivial example working on Linux not using old libraries. So I did some base project for myself and maybe it could be useful for someone.
+To run this base project you will need:
+ CUDA Toolkit SDL2 a C++ compiler (GNU G++ or Clang++)  Installing CUDA Toolkit In linux you can install CUDA Toolkit from NVIDIA page.</description>
+    </item>
     
     <item>
       <title>Emscripten and WebAssembly</title>
