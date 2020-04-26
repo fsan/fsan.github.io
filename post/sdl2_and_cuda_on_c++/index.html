@@ -53,79 +53,51 @@
 		</div>
 
 		<div class="markdown">
-			
-
-<p>As I want to learn more about CUDA, I was digging around for some base project for rendering CUDA content to screen without much overhead and I found none trivial example working on Linux not using old libraries.
+			<p>As I want to learn more about CUDA, I was digging around for some base project for rendering CUDA content to screen without much overhead and I found none trivial example working on Linux not using old libraries.
 So I did some base project for myself and maybe it could be useful for someone.</p>
-
 <p>To run this base project you will need:</p>
-
 <ol>
 <li>CUDA Toolkit</li>
 <li>SDL2</li>
 <li>a C++ compiler (GNU G++ or Clang++)</li>
 </ol>
-
 <h2 id="installing-cuda-toolkit">Installing CUDA Toolkit</h2>
-
-<p>In linux you can install CUDA Toolkit from <a href="https://developer.nvidia.com/cuda-downloads" target="_blank">NVIDIA page</a>. Pay attention to instructions provided after the installation.
-If you are using Ubuntu or other Debian based distro, you may add the apt repository and install using aptitude. <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu-installation" target="_blank">Follow the instructions here</a>.</p>
-
-<p>For other Linux distros or operating systems I do recommend to <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html" target="_blank">follow the manual</a>.</p>
-
+<p>In linux you can install CUDA Toolkit from <!-- raw HTML omitted -->NVIDIA page<!-- raw HTML omitted -->. Pay attention to instructions provided after the installation.
+If you are using Ubuntu or other Debian based distro, you may add the apt repository and install using aptitude. <!-- raw HTML omitted -->Follow the instructions here<!-- raw HTML omitted -->.</p>
+<p>For other Linux distros or operating systems I do recommend to <!-- raw HTML omitted -->follow the manual<!-- raw HTML omitted -->.</p>
 <h2 id="installing-sdl2">Installing SDL2</h2>
-
 <p>On Ubuntu or Debian:</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># apt install libsdl2-dev libsdl2-2.0-0 -y</span></code></pre></div>
-<p>Otherwise <a href="https://lazyfoo.net/tutorials/SDL/01_hello_SDL/linux/index.php">follow this tutorial by lazyfoo </a>.</p>
-
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># apt install libsdl2-dev libsdl2-2.0-0 -y</span>
+</code></pre></div><p>Otherwise <!-- raw HTML omitted -->follow this tutorial by lazyfoo <!-- raw HTML omitted -->.</p>
 <h2 id="c-compiler">C++ compiler</h2>
-
 <p>For GNU G++ ( I am using g++ 9.2 and haven&rsquo;t test with others, but I think there is not reason for concern in this case.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># apt install g++</span></code></pre></div>
-<p>For clang:</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">apt install clang++</code></pre></div>
-<h2 id="the-source-code">The Source code</h2>
-
-<p>Get the source code from <a href="https://github.com/fsan/cuda_on_sdl">my github project </a>.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone git@github.com:fsan/cuda_on_sdl.git</code></pre></div>
-<h2 id="building">Building</h2>
-
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># apt install g++</span>
+</code></pre></div><p>For clang:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">apt install clang++
+</code></pre></div><h2 id="the-source-code">The Source code</h2>
+<p>Get the source code from <!-- raw HTML omitted -->my github project <!-- raw HTML omitted -->.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ git clone git@github.com:fsan/cuda_on_sdl.git
+</code></pre></div><h2 id="building">Building</h2>
 <p>Just use make. In my computer I have CUDA 10.0 installed, be sure to change the variable in makefile or provide it at build time.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make</code></pre></div>
-<p>If everything build fine, you&rsquo;ll have and executable <strong>main</strong> in your folder.
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make
+</code></pre></div><p>If everything build fine, you&rsquo;ll have and executable <strong>main</strong> in your folder.
 Executing this will display ou a red screen rendered from GPU with cuda.</p>
-
-<p><center>
-<img src="../../assets/images/sdl2_cuda_demo.png" width="100%">
-</center></p>
-
+<!-- raw HTML omitted -->
 <h2 id="code-structure">Code structure</h2>
-
 <p>I think the structure is just too simple to explain and there are not anything magic happening. But in any case:</p>
-
 <p><strong>main.cpp</strong>:
 starts SDL2 Video, create window, allocates GPU memory, control frame rate.</p>
-
 <p><strong>gpu.cu</strong>:
 has the device and host code for copying data from GPU to host memory. also has the red screen kernel as example (although it would be better to be organized somewhere else). It will be compiled by nvcc and I haven&rsquo;t set any special flag to increase compatibility, but for better performance it would be interesting to enable optimizations and specify CUDA compute capability level for target host.</p>
-
 <h2 id="things-to-improve">Things to improve</h2>
-
 <p>One thing I saw on other examples and I think there is no better way of doing with CUDA is that there are some round trips by asking the cuda kernel to compile. AFAIK, we will run this GPU improved kernel, generate the result buffer, copy to host device then we will send it back to graphic driver for displaying through SDL.
 This double blitting seems unnecessary to me, but other projects with CUDA and SDL have the same characteristic. I think this is because CUDA is a GPGPU and not designed for this specific purpose. If there is a smarter way, please leave a comment on my github project or down below on the disqus.
 If the purpose is to do rasterization, probably it would be much better to use SDL interface do OpenGL directly, of if the objective was raytracing OptiX would be more efficient.</p>
-
 <p><strong><strong>So why I did this?</strong></strong></p>
-
 <p>I want to study cuda with different examples. To get more tangible examples without generating ppm/bmp files I would like to have a framebuffer to write directly. In SDL1 it was possible to write directly to the screen buffer, but for what I saw, on SDL2 you need a <code>SDL_Renderer</code> and a <code>SDL_Texture</code> for this. I think all this indirection and copying are probably not necessary, but I found no other way of doing. If you know how to do it only with SDL2 and CUDA please let me know.</p>
-
 <p>Also, I think having this easy to start projects are good for those who want to focus on learning something. Maybe if I got sometime I may write how to apply filters to image or videos only using CUDA.</p>
-
-<h2 id="got-any-problems-with-this-code">Got any problems with this code ?</h2>
-
+<h2 id="got-any-problems-with-this-code-">Got any problems with this code ?</h2>
 <p>Let me know if you liked or not in my github project by leaving a star or an issue.</p>
-
 <p>See you.</p>
 
 		</div>

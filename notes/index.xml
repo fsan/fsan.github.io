@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Notes on fsan</title>
+    <link>//fsan.github.io/notes/</link>
+    <description>Recent content in Notes on fsan</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>© 2020</copyright>
+    <lastBuildDate>Sun, 12 Jan 2020 19:05:35 -0300</lastBuildDate>
+    
+	<atom:link href="//fsan.github.io/notes/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Learning Blender</title>
+      <link>//fsan.github.io/notes/learning-blender/</link>
+      <pubDate>Sun, 12 Jan 2020 19:05:35 -0300</pubDate>
+      
+      <guid>//fsan.github.io/notes/learning-blender/</guid>
+      <description>Learning Blender Old monkey need new tricks and will note and share for future self reference.
+Tips  Down below there is a small bar the will help remember shortcuts Left bar is usually dependent on which mode is selected and has the tools for it Top left is mode menu Top right is gizmos menu (zoom and etc) and above it a view mode menu (x-ray, gizmos hiding, etc) In Ubuntu, Context Menu is Right Click  Modifiers  Subdivision Surface - creates more divisions automatically.</description>
+    </item>
+    
+  </channel>
+</rss>
