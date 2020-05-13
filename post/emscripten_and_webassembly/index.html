@@ -53,48 +53,82 @@
 		</div>
 
 		<div class="markdown">
-			<h2 id="webassembly">WebAssembly</h2>
-<!-- raw HTML omitted -->
+			
+
+<h2 id="webassembly">WebAssembly</h2>
+
+<p><center>
+<img src="../../assets/images/webassembly.png" width="200"/>
+</center></p>
+
 <p>WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.</p>
+
 <p>WebAssemly uses modules as the distributable, loadable, and executable unit of code. Multiple module instances can access the same shared state which is the basis for dynamic linking in WebAssembly (source).</p>
+
 <p>Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using LLVM, that lets you run C and C++ on the web at near-native speed without plugins (source).</p>
+
 <p>Modern compilers have front-end compilers to support different kind of languages generating the same bitcode that is then compiled to machine code by a backend part. For example, CLANG is the frontend compiler for C, C++ and several other languages that uses LLVM backend. For more details, it is worth to watch this video.</p>
+
 <p>Emscripten is not a frontend compiler. It does not intend to do the same as clang. It uses clang in its toolchain in order to enable C/C++ code to be deployed to WASM or ASM.js. When generating LLVM bitcode from emcc or clang they will generate same bitcode, as in this hello world example compiled and disassembled using clang+llvm tools (left) and emscripten+llvm tools (right).</p>
-<p><!-- raw HTML omitted --><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+
+<p><a href="http://www.youtube.com/watch?feature=player_embedded&v=E6i8jmiy8MY&t=226s"
+target="_blank"><img src="http://img.youtube.com/vi/E6i8jmiy8MY/0.jpg" 
+width="480" border="0" /></a></p>
+
 <h2 id="installing-emscripten">Installing Emscripten</h2>
+
 <p>The default  installation is quite easy and can be found <a href="https://emscripten.org/docs/getting_started/downloads.html">here</a>.</p>
+
 <p>It is always possible to use a docker image for using Emscripten:</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src -ti trzeci/emscripten emcc -o &lt;output file&gt; -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> &lt;c <span style="color:#111">source</span> code&gt;
-</code></pre></div><p>If you are not used to docker, check <a href="https://docs.docker.com/engine/reference/run/">this reference</a>.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src -ti trzeci/emscripten emcc -o &lt;output file&gt; -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> &lt;c <span style="color:#111">source</span> code&gt;</code></pre></div>
+<p>If you are not used to docker, check <a href="https://docs.docker.com/engine/reference/run/">this reference</a>.</p>
+
 <h2 id="example">Example</h2>
+
 <p>Before your attention span is gone, let see it is working.
 As it seems everybody is raytracing let&rsquo;s do it too because we can.
 I followed <a href="https://github.com/RayTracing/raytracing.github.io"><strong>Raytracing in One Weekend</strong></a> and got this nice <strong><a href="../../assets/pages/wasm1/index.html">DEMO</a></strong> working in WebAssembly.</p>
+
 <p>My <a href="https://github.com/fsan/fsan.github.io/tree/master/assets/pages/wasm1">source code</a> is ugly but it&rsquo;s quite easy too follow if you&rsquo;ve read Peter&rsquo;s book. This is not intended for you to reading, but there is always someone that may feel curious.</p>
+
 <p>Press the <strong>render</strong> button below and the page will become irresponsive for some moments.I should had an async js call, but it is totally out of scope for this post.</p>
+
 <p>It should generate an output like this:</p>
-<!-- raw HTML omitted -->
+
+<p><img src="../../assets/images/raytracing.jpg" width="100%"/></p>
+
 <p>Raytracing may generate realistic images because they rely on a &ldquo;simulation&rdquo; of how lightinteract with objects, but this will be subject for another post. But in summary, for every pixel we should a ray and check whether it hits a surface or not. So for a 640x480 wewill have more than 300K rays shot at minimum, but when a ray hits an object it will scatter in different directions with different possibly with different intensities and will possibly hitting other objects and may bounce and scatter again. Still with me ? What I mean it is <strong>compute-intensive</strong>.</p>
+
 <p>Due to its nature, GPUs copes well with raytracing. CPUs may have multiple threads but not enough raw power to deal with so many threadings for every ray. In the source code for this example, when running natively there is OMP and some other trickery to get it faster.</p>
+
 <p>Now, can you try to imagine running this in pure javascript and its many layers of indirection? That&rsquo;s why I selected for this case the raytracing algorithm.</p>
+
 <p>Now back to the teory.</p>
+
 <h2 id="more-about-emscripten-and-wasm">More about Emscripten and wasm</h2>
+
 <p>Emscripten supports several ouputs as ASM.js and WASM and may use a template to create a page loading the created module. By default Emscripten generates ASM.js. To specify a output as WASM it is necessary to set <strong>WASM=1</strong> as argument for the emcc. For more details on ASM.js vs WASM check this StackOverflow discussion.</p>
-<h3 id="webassembly-textformat">WebAssembly Text Format</h3>
-<hr>
+
+<h3 id="webassembly-text-format">WebAssembly Text Format</h3>
+
+<hr />
+
 <blockquote>
 <p>This post will not go into the details of the S-expr language used as text format for WebAssembly. More information <strong><a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Understanding_the_text_format">here</a></strong> and <strong><a href="https://blog.scottlogic.com/2018/04/26/webassembly-by-hand.html">here</a></strong>.</p>
 </blockquote>
-<hr>
+
+<hr />
+
 <p>In few words, you can create wasm modules in a <a href="https://en.wikipedia.org/wiki/S-expression">S-expr language</a> using <a href="https://github.com/WebAssembly/wabt">webassembly binary toolkit</a>. Here is an example from the fantastic post from <a href="https://blog.scottlogic.com/2018/04/26/webassembly-by-hand.html">Colin Eberhardt at Scott Logic</a> that you definitely should read for more information.</p>
+
 <p>Let&rsquo;s start simple:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">//hello.c
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(){</span>
     <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>Compiling it with Emscripten as:</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -ti -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src trzeci/emscripten emcc -o hello.bt -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> hello.c
-</code></pre></div><p>The source above will generate the LLVM bitcode:</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>Compiling it with Emscripten as:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -ti -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src trzeci/emscripten emcc -o hello.bt -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> hello.c</code></pre></div>
+<p>The source above will generate the LLVM bitcode:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">; hello.wat
 ;  .wat (text) → wat2wasm →.wasm
 (module
@@ -102,14 +136,14 @@ I followed <a href="https://github.com/RayTracing/raytracing.github.io"><strong>
     (i32.const 42)
   )
   (export &#34;helloWorld&#34; (func 0))
-)
-</code></pre></div><p>The output file will be an <a href="https://llvm.org/docs/BitCodeFormat.html">LLVM IR bitcode</a> that we can disassemble and check llvm toolchain kit.
+)</code></pre></div>
+<p>The output file will be an <a href="https://llvm.org/docs/BitCodeFormat.html">LLVM IR bitcode</a> that we can disassemble and check llvm toolchain kit.
 The <a href="https://llvm.org/docs/CommandGuide/llvm-nm.html">llvm-nm</a> is able to lists the names of symbols from LLVM bitcode files. For now, as expected, there is only symbol for the main function (T stands code (text)object).</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">$ llvm-nm hello.bt
--------- T main
-</code></pre></div><p>It is possible to disassemble the llvm bitcode with <a href="https://llvm.org/docs/CommandGuide/llvm-dis.html">llvm-dis</a>.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ llvm-dis hello.bt
-</code></pre></div><p>And there will be the main function first part of hello.bt.ll generated file:</p>
+-------- T main</code></pre></div>
+<p>It is possible to disassemble the llvm bitcode with <a href="https://llvm.org/docs/CommandGuide/llvm-dis.html">llvm-dis</a>.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ llvm-dis hello.bt</code></pre></div>
+<p>And there will be the main function first part of hello.bt.ll generated file:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">; ModuleID = &#39;hello&#39;
 source_filename = &#34;hello.c&#34;
 target datalayout = &#34;e-p:32:32-i64:64-v128:32:128-n32-S128&#34;
@@ -119,15 +153,15 @@ define i32 @main() #0 {
   %1 = alloca i32, align 4
   store i32 0, i32* %1, align 4
   ret i32 0
-}
-</code></pre></div><p>For more details over what is happening check the <a href="https://llvm.org/docs/LangRef.html">LLVM Lang specification</a>. But in summary, this code only allocated 4 bytes for the unnamed variable <code>%1</code>. Then it stores the integer 0 value at <code>%1address</code>. And finally returns <code>0</code> for the main function.
+}</code></pre></div>
+<p>For more details over what is happening check the <a href="https://llvm.org/docs/LangRef.html">LLVM Lang specification</a>. But in summary, this code only allocated 4 bytes for the unnamed variable <code>%1</code>. Then it stores the integer 0 value at <code>%1address</code>. And finally returns <code>0</code> for the main function.
 Extending this example with a simple add operation:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">//hello.c
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(</span><span style="color:#00a8c8">void</span><span style="color:#111">){</span>
     <span style="color:#00a8c8">int</span> <span style="color:#111">c</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span><span style="color:#111">;</span>
     <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>Generates the following LLVM Bitcode:</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>Generates the following LLVM Bitcode:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">; Function Attrs: noinline nounwind
 define i32 @main() #0 {
   %1 = alloca i32, align 4
@@ -135,8 +169,8 @@ define i32 @main() #0 {
   store i32 0, i32* %1, align 4
   store i32 3, i32* %2, align 4
   ret i32 0
-}
-</code></pre></div><p>It is not hard to follow this disassembled as it follows the same structure from the one explained before.
+}</code></pre></div>
+<p>It is not hard to follow this disassembled as it follows the same structure from the one explained before.
 Next step is to understand how LLVM Bitcode stacks variable for usage in other function. This will be useful in the nexts steps of understanding WASM.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">//hello.c
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">int</span> <span style="color:#75af00">sum</span><span style="color:#111">(</span><span style="color:#00a8c8">int</span> <span style="color:#111">a</span><span style="color:#111">,</span> <span style="color:#00a8c8">int</span> <span style="color:#111">b</span><span style="color:#111">)</span> <span style="color:#111">{</span> 
@@ -146,8 +180,8 @@ Next step is to understand how LLVM Bitcode stacks variable for usage in other f
 <span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(</span><span style="color:#00a8c8">void</span><span style="color:#111">){</span>
     <span style="color:#00a8c8">int</span> <span style="color:#111">x</span> <span style="color:#f92672">=</span> <span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#ae81ff">3</span><span style="color:#111">,</span> <span style="color:#ae81ff">4</span><span style="color:#111">);</span>
     <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>And the disassembled code:</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>And the disassembled code:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">; Function Attrs: noinline nounwind
 define i32 @sum(i32, i32) #0 {
   %3 = alloca i32, align 4        ; memory for variable a
@@ -170,16 +204,16 @@ define i32 @main() #0 {
   %3 = call i32 @sum(i32 3, i32 4)
   store i32 %3, i32* %2, align 4
   ret i32 0
-}
-</code></pre></div><p>As values are copied in to the scope of functions we need to store the values into the variable names <code>a</code> and <code>b</code> then the add operation is finally done and saved to <code>c</code>, then <code>c</code> is returned.
+}</code></pre></div>
+<p>As values are copied in to the scope of functions we need to store the values into the variable names <code>a</code> and <code>b</code> then the add operation is finally done and saved to <code>c</code>, then <code>c</code> is returned.
 I will not go into detail here, but I think it is easy to understand this last step to print something:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">//hello.c
 </span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(</span><span style="color:#00a8c8">void</span><span style="color:#111">){</span>
     <span style="color:#111">printf</span><span style="color:#111">(</span><span style="color:#d88200">&#34;Hello world!&#34;</span><span style="color:#111">);</span>
     <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>LLVM disassembled bitcode:</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>LLVM disassembled bitcode:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">@.str = private unnamed_addr constant [13 x i8] c&#34;Hello world!\00&#34;, align 1
 ; Function Attrs: noinline nounwind
 define i32 @main() #0 {
@@ -188,16 +222,16 @@ define i32 @main() #0 {
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str, i32 0, i32 0))
   ret i32 0
 }
-declare i32 @printf(i8*, ...) #1
-</code></pre></div><p>If a function from another library is needed to be linked the result is very similar (i.e. sqrt from math.h needs to be linked with -lm):</p>
+declare i32 @printf(i8*, ...) #1</code></pre></div>
+<p>If a function from another library is needed to be linked the result is very similar (i.e. sqrt from math.h needs to be linked with -lm):</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;math.h&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(</span><span style="color:#00a8c8">void</span><span style="color:#111">){</span>
     <span style="color:#00a8c8">int</span> <span style="color:#111">x</span> <span style="color:#f92672">=</span> <span style="color:#111">sqrt</span><span style="color:#111">(</span><span style="color:#ae81ff">4</span><span style="color:#111">);</span>
     <span style="color:#111">printf</span><span style="color:#111">(</span><span style="color:#d88200">&#34;%d&#34;</span><span style="color:#111">,</span> <span style="color:#111">x</span><span style="color:#111">);</span>
     <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>generates:</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>generates:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">@.str = private unnamed_addr constant [3 x i8] c&#34;%d\00&#34;, align 1
 ; Function Attrs: noinline nounwind
 define i32 @main() #0 {
@@ -213,24 +247,27 @@ define i32 @main() #0 {
 }
 ; Function Attrs: nounwind readnone speculatable
 declare double @llvm.sqrt.f64(double) #1
-declare i32 @printf(i8*, ...) #2
-</code></pre></div><h3 id="wasm-and-javascript-module">WASM and Javascript Module</h3>
+declare i32 @printf(i8*, ...) #2</code></pre></div>
+<h3 id="wasm-and-javascript-module">WASM and Javascript Module</h3>
+
 <p>Emscripten was generating LLVM IR Bitcode, but if .js extension is provided to output option emcc will spit WASM and loadable Javascript modules.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run --rm -ti -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src trzeci/emscripten emcc -lm -o hello.js hello.c
 $ ls
-hello.c  hello.js  hello.wasm
-</code></pre></div><p><!-- raw HTML omitted --><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+hello.c  hello.js  hello.wasm</code></pre></div>
+<p><a href="https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts"><img src="../../assets/images/wasm-flow.png"/></a></p>
+
 <p>This &ldquo;glue&rdquo; code has about 2.5k lines of code. It exports a Module var which can be accessed from HTML which allows execution of wasm and some other functionalities.
 Emscripten can generate some glue code to be used inside node easily.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src -ti trzeci/emscripten emcc -o hello.js -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> -s <span style="color:#111">ENVIRONMENT</span><span style="color:#f92672">=</span>node hello.c
-</code></pre></div><p>To use the generate code from node it is enought to load the glue code as a module.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src -ti trzeci/emscripten emcc -o hello.js -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> -s <span style="color:#111">ENVIRONMENT</span><span style="color:#f92672">=</span>node hello.c</code></pre></div>
+<p>To use the generate code from node it is enought to load the glue code as a module.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#75715e">//index.js
 </span><span style="color:#75715e"></span><span style="color:#00a8c8">const</span> <span style="color:#75af00">hello</span> <span style="color:#f92672">=</span> <span style="color:#75af00">require</span><span style="color:#111">(</span><span style="color:#d88200">&#39;./hello&#39;</span><span style="color:#111">);</span>
-</code></pre></div><p>If it was not the glue code generate by Emscripten toolchain it would need node source code module to load the .wasm binary to a buffer then use WebAssembly module to instantiate the wasm module as shown at The Code Barbarian post. In many cases the boilerplate generated by Emscripten is not a real problem, but some time it is. It is better to check the alternatives.
+</code></pre></div>
+<p>If it was not the glue code generate by Emscripten toolchain it would need node source code module to load the .wasm binary to a buffer then use WebAssembly module to instantiate the wasm module as shown at The Code Barbarian post. In many cases the boilerplate generated by Emscripten is not a real problem, but some time it is. It is better to check the alternatives.
 By default, when loading Emscripten glue code the <code>main()</code> function will be called.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ node index.js 
-hello world
-</code></pre></div><p>In fact, when emcc runs it will inline several methods and remove all function calls. But we&rsquo;ll get there.
+hello world</code></pre></div>
+<p>In fact, when emcc runs it will inline several methods and remove all function calls. But we&rsquo;ll get there.
 In fact, if we inspect our <code>hello.js</code> glue code, we&rsquo;ll found an object named <code>Module</code> that will contain a function named <code>callMain</code>.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Module[&#39;callMain&#39;] = function callMain(args) {
 // ...
@@ -239,41 +276,52 @@ var ret = Module[&#39;_main&#39;](argc, argv, 0);
 // if we&#39;re not running an evented main loop, it&#39;s time to exit
       exit(ret, /* implicit = */ true);
   }
-// ...
-</code></pre></div><p>The stacked of execution goes something like this:</p>
+// ...</code></pre></div>
+<p>The stacked of execution goes something like this:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">run() →
    doRun() →
         Module[&#39;callMain&#39;](args) →
-            Module[&#39;main&#39;](argc, argv)
-</code></pre></div><p>After <code>main()</code> is called the wasm code will be executed then terminated. If state of memory from wasm module is to be maintained and the execution not be terminated we should add provide emcc with <code>-s NO_EXIT_RUNTIME=1</code>.</p>
-<hr>
+            Module[&#39;main&#39;](argc, argv)</code></pre></div>
+<p>After <code>main()</code> is called the wasm code will be executed then terminated. If state of memory from wasm module is to be maintained and the execution not be terminated we should add provide emcc with <code>-s NO_EXIT_RUNTIME=1</code>.</p>
+
+<hr />
+
 <p>You can skip this digression:
-<!-- raw HTML omitted --></p>
+<small></p>
+
 <blockquote>
 <p>I noticed when comparing generated files, I see no difference in them when generating with <code>NO_EXIT_RUNTIME</code> even using global variables, keepalive functions or requesting html, etc.</p>
-</blockquote>
-<blockquote>
+
 <p> I guess emscripten is smart enough to know when you will want to keep state alive or not. But I notice something when you set <code>NO_EXIT_RUNTIME=0</code>. It adds to the js glue code a call to a function named callRuntimeCallbacks(<code>__ATEXIT__</code>).</p>
-</blockquote>
-<blockquote>
+
 <p><code>__ATEXIT__</code> is an array as used in command pattern. In summary it adds some finalization activities when calling exit() method. The stack goes something like:</p>
 </blockquote>
-<!-- raw HTML omitted -->
-<hr>
+
+<p></small>
+<small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Module[&#39;callMain&#39;] →
+    exit(ret, true) →
+        callRuntimeCallbacks(__ATEXIT__) →
+            // consume every callback from __ATEXIT__ array</code></pre></div>
+<p></small></p>
+
+<hr />
+
 <p>ccall, cwrap and exported functions
 As stated before, when there is a <code>main()</code> function, it gets called by default if no other functions are exported.
 So there are some ways of calling functions at wasm level with Emscripten help.
 According to <a href="https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-ccall-cwrap">Emscripten documentation</a>:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">- ccall() calls a compiled C function with specified parameters and returns the result, while
 - cwrap() &#34;wraps&#34; a compiled C function and returns a JavaScript function you can call normally. 
-- cwrap() is therefore more useful if you plan to call a compiled function a number of times.
-</code></pre></div><p>In other words, <code>cwrap</code> gives you a function directly to call from javascript while <code>ccall</code> requires you to manipulate some stuff to call the function directly.
+- cwrap() is therefore more useful if you plan to call a compiled function a number of times.</code></pre></div>
+<p>In other words, <code>cwrap</code> gives you a function directly to call from javascript while <code>ccall</code> requires you to manipulate some stuff to call the function directly.
 But in other to use these functions we need to add some extra parameters when generating the wasm with emscripten:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">docker run --rm -v <span style="color:#00a8c8">$(</span><span style="color:#111">pwd</span><span style="color:#00a8c8">)</span>:/src -u <span style="color:#00a8c8">$(</span>id -u<span style="color:#00a8c8">)</span>:<span style="color:#00a8c8">$(</span>id -g<span style="color:#00a8c8">)</span> -w /src -ti trzeci/emscripten emcc -o hello.js <span style="color:#8045ff">\
 </span><span style="color:#8045ff"></span>    -s <span style="color:#111">WASM</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> -s <span style="color:#111">ENVIRONMENT</span><span style="color:#f92672">=</span>node <span style="color:#8045ff">\
 </span><span style="color:#8045ff"></span>    -s <span style="color:#d88200">&#34;EXTRA_EXPORTED_RUNTIME_METHODS=[&#39;ccall&#39;,&#39;cwrap&#39;]&#34;</span> <span style="color:#8045ff">\
-</span><span style="color:#8045ff"></span>    hello.c
-</code></pre></div><p>According to <a href="https://github.com/webaudiomodules/webdx7/issues/5#issuecomment-428657940">this github thread:</a> &ldquo;Emscripten toolchain slimmed down its footprint a while back, and one of the things it dropped was <code>cwrap</code>&rdquo;. But I think that <code>ccall</code> and <code>cwrap</code> gives you access to other non-exported functions, so I am not sure if other security elements were not part of the decision to not let them enabled by default.</p>
+</span><span style="color:#8045ff"></span>    hello.c</code></pre></div>
+<p>According to <a href="https://github.com/webaudiomodules/webdx7/issues/5#issuecomment-428657940">this github thread:</a> &ldquo;Emscripten toolchain slimmed down its footprint a while back, and one of the things it dropped was <code>cwrap</code>&rdquo;. But I think that <code>ccall</code> and <code>cwrap</code> gives you access to other non-exported functions, so I am not sure if other security elements were not part of the decision to not let them enabled by default.</p>
+
 <p>To call a C function other than main from Javascript using <code>ccall</code> or <code>cwrap</code> it is necessary to add the <code>EMSCRIPTEN_KEEPALIVE</code> property to the function. As mentioned earlier, <a href="https://emscripten.org/docs/api_reference/emscripten.h.html#compiling">LLVM will strip out</a> any function that it is not meant to be there.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
 </span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;emscripten.h&gt;</span><span style="color:#75715e">
@@ -283,8 +331,9 @@ But in other to use these functions we need to add some extra parameters when ge
 <span style="color:#00a8c8">int</span> <span style="color:#75af00">main</span><span style="color:#111">(){</span>
  <span style="color:#111">printf</span><span style="color:#111">(</span><span style="color:#d88200">&#34;Hello World!</span><span style="color:#8045ff">\n</span><span style="color:#d88200">&#34;</span><span style="color:#111">);</span>
  <span style="color:#00a8c8">return</span> <span style="color:#ae81ff">0</span><span style="color:#111">;</span>
-<span style="color:#111">}</span>
-</code></pre></div><p>The <code>EMSCRIPTEN_KEEPALIVE</code> will also export functions as if they were added to <code>EXPORTED_FUNCTIONS</code> which will be seen soon.</p>
+<span style="color:#111">}</span></code></pre></div>
+<p>The <code>EMSCRIPTEN_KEEPALIVE</code> will also export functions as if they were added to <code>EXPORTED_FUNCTIONS</code> which will be seen soon.</p>
+
 <p>Some quick examples at node repl:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript"><span style="color:#f92672">&gt;</span> <span style="color:#00a8c8">const</span> <span style="color:#75af00">hello</span> <span style="color:#f92672">=</span> <span style="color:#75af00">require</span><span style="color:#111">(</span><span style="color:#d88200">&#39;./hello&#39;</span><span style="color:#111">);</span>
  
@@ -297,20 +346,33 @@ But in other to use these functions we need to add some extra parameters when ge
 
 <span style="color:#f92672">&gt;</span> <span style="color:#75af00">hello</span><span style="color:#111">.</span><span style="color:#75af00">ccall</span><span style="color:#111">(</span><span style="color:#d88200">&#39;add&#39;</span><span style="color:#111">,</span> <span style="color:#d88200">&#39;number&#39;</span><span style="color:#111">,</span> <span style="color:#111">[</span><span style="color:#d88200">&#39;number&#39;</span><span style="color:#111">,</span><span style="color:#d88200">&#39;number&#39;</span><span style="color:#111">],</span> <span style="color:#111">[</span><span style="color:#ae81ff">3</span><span style="color:#111">,</span><span style="color:#ae81ff">5</span><span style="color:#111">]);</span>
 <span style="color:#ae81ff">8</span>
-</code></pre></div><hr>
-<!-- raw HTML omitted -->
+</code></pre></div>
+<hr />
+
+<p><small>
+Another digression:</p>
+
 <p>You can avoid using the <code>EMSCRIPTEN_KEEPALIVE</code> directive by exporting the functions using <code>-s &quot;EXPORTED_FUNCTIONS=['_&lt;function name&gt;']&quot;</code>. It seems to that it works the same.</p>
-<!-- raw HTML omitted -->
-<hr>
-<h3 id="environmentweb-x-enviromentnode">ENVIRONMENT=web x ENVIROMENT=node</h3>
+
+<p></small></p>
+
+<hr />
+
+<h3 id="environment-web-x-enviroment-node">ENVIRONMENT=web x ENVIROMENT=node</h3>
+
 <p>According to Emscripten FAQ, it is possible to reduce the size of glue code. Indeed, if no library is used and no other special feature is activated it does resize almost 100 lines if no environment is specified but almost the same number when we specify it as node.
 In both cases it strips some code the other would not use. So it may be helpful in some situations.</p>
+
 <h4 id="html-output"><strong>.html output</strong></h4>
+
 <p>When specifying output to be an html it will use a pre-made template from the SDK (if other is not specified). It includes a canvas, a output text block and some controls.
 In the core of this HTML a Module element is declared. It does some stuff such as settings the output to the correct element and creating the webglcontext and managing the wasm loading to the browser.</p>
+
 <h2 id="conclusion">Conclusion</h2>
+
 <p>In this post we explored about WebAssembly and Emscripten as a way of making it easy.
 Then we checked how it works the hard way by checking the generated code and how emscripten glues everything together.</p>
+
 <p>I thought doing a series about this, but there are so many details and my curiosity is satisfied for now regarding WebAssembly. There are so many good sources for understanding the details and the implementation of wasm and emscripten that I don&rsquo;t feel compeled to go further. You must definily check <a href="https://blog.scottlogic.com/2018/04/26/webassembly-by-hand.html">Colin Eberhardt at Scott Logic</a>. If you&rsquo;re like me, and reached this last line you will probably love Colin&rsquo;s work.</p>
 
 		</div>

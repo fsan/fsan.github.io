@@ -7,8 +7,8 @@
 <meta property="og:description" content="Medical image segmentation with TF pipeline" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="//fsan.github.io/post/unet_ct_scan_segmentation_tf2/" />
-<meta property="article:published_time" content="2020-04-26T08:42:06-03:00" />
-<meta property="article:modified_time" content="2020-04-26T08:42:06-03:00" />
+<meta property="article:published_time" content="2020-05-12T08:33:06-03:00" />
+<meta property="article:modified_time" content="2020-05-12T08:33:06-03:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="UNET CT Scan Segmentation using TensorFlow 2"/>
 <meta name="twitter:description" content="Medical image segmentation with TF pipeline"/>
@@ -49,22 +49,38 @@
 
 		<div class="post-header">
 			<h1 class="title">UNET CT Scan Segmentation using TensorFlow 2</h1>
-			<div class="meta">Posted at &mdash; Apr 26, 2020</div>
+			<div class="meta">Posted at &mdash; May 12, 2020</div>
 		</div>
 
 		<div class="markdown">
-			<h2 id="tldr">TL;DR;</h2>
-<p>This is a quick tour over tensorflow 2 features and an UNET implementation using its framework and data pipeline.
-Here is github source and results:</p>
-<!-- raw HTML omitted -->
+			
+
+<h2 id="tl-dr">TL;DR;</h2>
+
+<p>This is a quick tour over Tensorflow 2 features and an UNET implementation using its framework and data pipeline.</p>
+
+<p>I will make the notebook available on github available, after some clean up. But I am pre-publishing this for reference because I do not know when I will have time to make the source prettier.</p>
+
+<p><del>
+Here is github source and results:
+<a href="https://github.com/fsan/UNET_Remake/" target="_blank"> github.com/fsan/UNET_Remake</a></del></p>
+
 <p>Migrating from TF 1.x to 2.x was not as easy as I thought it would be. But certainly not because of TF2. There are lots of perks and tricks you have to learn to use TF1 and they are necessary anymore. So at first you get stuck and starting thinking where you should put all that boilerplate code from before. In the end, it is much easier to learn TF2 from scratch than trying to adapt every TF1 concept you learned in the past.</p>
-<p>So to explore some useful tools from TensorFlow and share some of what I learned I remade the content from one <!-- raw HTML omitted -->of my previous posts from 2018. <!-- raw HTML omitted --></p>
-<p>By that time, I was far less concerned about using the framework properly and its tools for a single pipeline than now. The main focus at that time was to implement the model from <!-- raw HTML omitted -->Ronneberger et al<!-- raw HTML omitted --> and get it working.</p>
+
+<p>So to explore some useful tools from TensorFlow and share some of what I learned I remade the content from one <a href="https://medium.com/@fabio.sancinetti/u-net-convnet-for-ct-scan-segmentation-6cc0d465eed3" target="_blank">of my previous posts from 2018. </a></p>
+
+<p>By that time, I was far less concerned about using the framework properly and its tools for a single pipeline than now. The main focus at that time was to implement the model from <a href="https://arxiv.org/pdf/1505.04597.pdf">Ronneberger et al</a> and get it working.</p>
+
 <p>It was something I&rsquo;ve done in a single night and by wrote that medium post next day. By consequence I hadn&rsquo;t explorer many useful tools and concepts. This was not such a big problem at that time, but some people could reproduce the results and other not. And my best guess was that people could not reproduce the same procedures I did to preprocess and organize images. And even if I tried, probably I could not, because I hadn&rsquo;t take any note and just relied on my memory to describe people.</p>
-<p>I was very happy to see that many people got it working and made it much more useful than I though, such as <!-- raw HTML omitted -->estimating rooftop areas for solar policy by Britanny Bennet <!-- raw HTML omitted -->.</p>
+
+<p>I was very happy to see that many people got it working and made it much more useful than I though, such as <a href="https://github.com/thebbennett/rooftopNN" target="_blank">estimating rooftop areas for solar policy by Britanny Bennet </a>.</p>
+
 <p>I do not intend to repeat myself in this post, and theory is better detailed in the original post. I will, in the next sections, explore some more details and concepts and I did not cover before and may be relevant for refreshing and ideas for this post.</p>
-<p>I will be using the same <!-- raw HTML omitted -->IRCAD dataset<!-- raw HTML omitted --> again and will try to get same results from before.</p>
-<p>There is a way of downloading the dataset, but <!-- raw HTML omitted --><strong>YOU MUST</strong><!-- raw HTML omitted --> check the IRCAD page to understand licensing and distribuition.</p>
+
+<p>I will be using the same <a href="https://www.ircad.fr/research/3d-ircadb-01/" target="_blank">IRCAD dataset</a> again and will try to get same results from before.</p>
+
+<p>There is a way of downloading the dataset, but <a style="background-color=#FF3300"><strong>YOU MUST</strong></a> check the IRCAD page to understand licensing and distribuition.
+<small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">wget https://www.ircad.fr/softwares/3Dircadb/3Dircadb1/3Dircadb1.zip
 unzip 3Dircadb1.zip<span style="color:#111">;</span> <span style="color:#111">cd</span> 3Dircadb1
 <span style="color:#00a8c8">for</span> a in <span style="color:#00a8c8">$(</span>find . -name <span style="color:#d88200">&#39;*.zip&#39;</span><span style="color:#00a8c8">)</span><span style="color:#111">;</span> <span style="color:#00a8c8">do</span>
@@ -73,34 +89,56 @@ unzip 3Dircadb1.zip<span style="color:#111">;</span> <span style="color:#111">cd
     <span style="color:#111">echo</span> <span style="color:#111">$fx</span><span style="color:#111">;</span> <span style="color:#111">echo</span> <span style="color:#111">$dx</span> <span style="color:#111">;</span>
         <span style="color:#111">pushd</span> <span style="color:#111">$dx</span><span style="color:#111">;</span>
         unzip <span style="color:#111">$fx</span><span style="color:#111">;</span>
-    <span style="color:#111">popd</span> <span style="color:#111">;</span> <span style="color:#00a8c8">done</span>
-</code></pre></div><p>I will not strive for a very different implementation of the model, nor any different techniques I used by that time. Some code will be different from previous implementation because (1) I will be using TF2 pipeline as much as I can and (2) I learned other things that may helped me to make things simpler.</p>
+    <span style="color:#111">popd</span> <span style="color:#111">;</span> <span style="color:#00a8c8">done</span></code></pre></div>
+<p></small></p>
+
+<p>I will not strive for a very different implementation of the model, nor any different techniques I used by that time. Some code will be different from previous implementation because (1) I will be using TF2 pipeline as much as I can and (2) I learned other things that may helped me to make things simpler.</p>
+
 <h2 id="computed-tomography-scan">Computed Tomography Scan</h2>
+
 <p>CT Scans are medical images produced by the combination of many measurements done simultaneously.
-For newbies in the matter like me, all the physics and math behind it are almost magic, and it is indeed one of the most complex piece of equipment built by humanity until this day. <!-- raw HTML omitted -->Some references how it works here.<!-- raw HTML omitted --></p>
+For newbies in the matter like me, all the physics and math behind it are almost magic, and it is indeed one of the most complex piece of equipment built by humanity until this day. <a href="https://www.nibib.nih.gov/science-education/science-topics/computed-tomography-ct" target="_blank">Some references how it works here.</a></p>
+
 <p>But in a very simplified way, this equipment is capable of generating 3D images from inside the body and determining density properties at each point given its own resolution capability.
 This 3D images can be sliced in 2D portions to show a cross section of interest for medical analysis and are used most of the time to aid on medical diagnostics.</p>
-<!-- raw HTML omitted -->
+
+<p><center>
+<a href="https://www.medicalnewstoday.com/articles/153201#what-is-a-CT-scan" target="_blank">
+<img src="../../assets/images/ct_scan_equipment.png" width="60%">
+<small><p>Source: Medical News Today</p></small>
+</a>
+</center></p>
+
 <h2 id="dicom">DICOM</h2>
-<p>The <!-- raw HTML omitted -->DICOM<!-- raw HTML omitted --> is a standard format for medical images and is the format used in the dataset chosen for this experiment. It is the most common format to find medical image data and tensorflow-addons package now allows you to load and integrate with tensorflow.image package easily.</p>
+
+<p>The <a href="https://www.dicomstandard.org/" target="_blank">DICOM</a> is a standard format for medical images and is the format used in the dataset chosen for this experiment. It is the most common format to find medical image data and tensorflow-addons package now allows you to load and integrate with tensorflow.image package easily.</p>
+
 <h2 id="reading-dicom-files-in-tensorflow">Reading DICOM files in TensorFlow</h2>
+
 <p>Reading DICOM files in TF2 does not require any external packages anymore. This is great, because reading it as tensors and processing in the same pipeline makes everything easier to integrate and faster to execute.
-Reading a DICOM file goes in 2 steps.</p>
-<ol>
-<li>Reading the binary file</li>
-<li>Converting from DICOM to Image</li>
-</ol>
+Reading a DICOM file goes in 2 steps.
+1. Reading the binary file
+1. Converting from DICOM to Image</p>
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">process_path</span><span style="color:#111">(</span><span style="color:#111">filename</span><span style="color:#111">):</span>
     <span style="color:#111">image_bytes</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">io</span><span style="color:#f92672">.</span><span style="color:#111">read_file</span><span style="color:#111">(</span><span style="color:#111">filename</span><span style="color:#111">)</span>
     <span style="color:#111">image_data</span> <span style="color:#f92672">=</span> <span style="color:#111">tfio</span><span style="color:#f92672">.</span><span style="color:#111">image</span><span style="color:#f92672">.</span><span style="color:#111">decode_dicom_image</span><span style="color:#111">(</span><span style="color:#111">image_bytes</span><span style="color:#111">,</span>
                                                <span style="color:#111">scale</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;auto&#39;</span><span style="color:#111">,</span>
                                                <span style="color:#111">on_error</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;lossy&#39;</span><span style="color:#111">,</span>
-                                               <span style="color:#111">dtype</span><span style="color:#f92672">=</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">uint8</span> <span style="color:#111">)</span>
-</code></pre></div><p>For more information about reading DICOM files directly check <!-- raw HTML omitted -->this official guide.<!-- raw HTML omitted --></p>
+                                               <span style="color:#111">dtype</span><span style="color:#f92672">=</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">uint8</span> <span style="color:#111">)</span></code></pre></div>
+<p></small></p>
+
+<p>For more information about reading DICOM files directly check <a href="https://www.tensorflow.org/io/tutorials/dicom" target="_blank">this official guide.</a></p>
+
 <h2 id="tensorflow-dataset">TensorFlow Dataset</h2>
+
 <p>A TensorFlow Dataset is a pretty useful concept to load, process and feed your model. It allows you to create a functional-like pipeline where you filter and map functions to data as they pass through the pipeline.
 It also allows you to cache data for more speed, shuffle and repeat to feed your model.</p>
-<p>For more information on TF datasets check <!-- raw HTML omitted -->this link<!-- raw HTML omitted -->.</p>
+
+<p>For more information on TF datasets check <a href="https://www.tensorflow.org/api_docs/python/tf/data/Dataset" target="_blank">this link</a>.</p>
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#f92672">import</span> <span style="color:#111">pathlib</span>
 <span style="color:#111">root_dir</span> <span style="color:#f92672">=</span> <span style="color:#111">pathlib</span><span style="color:#f92672">.</span><span style="color:#111">Path</span><span style="color:#111">(</span><span style="color:#d88200">r</span><span style="color:#d88200">&#34;D:\data\3Dircadb1&#34;</span><span style="color:#111">)</span>
 <span style="color:#111">all_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">data</span><span style="color:#f92672">.</span><span style="color:#111">Dataset</span><span style="color:#f92672">.</span><span style="color:#111">list_files</span><span style="color:#111">(</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">root_dir</span><span style="color:#f92672">/</span><span style="color:#d88200">&#39;*/PATIENT_DICOM/*&#39;</span><span style="color:#111">))</span>
@@ -134,16 +172,19 @@ It also allows you to cache data for more speed, shuffle and repeat to feed your
     <span style="color:#111">mask_image</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">image</span><span style="color:#f92672">.</span><span style="color:#111">convert_image_dtype</span><span style="color:#111">(</span><span style="color:#111">mask_image</span><span style="color:#111">,</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)</span>
     <span style="color:#111">mask_image</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">image</span><span style="color:#f92672">.</span><span style="color:#111">resize</span><span style="color:#111">(</span><span style="color:#111">mask_image</span><span style="color:#111">,</span> <span style="color:#111">(</span><span style="color:#111">D</span><span style="color:#111">,</span><span style="color:#111">D</span><span style="color:#111">))</span>
     
-    <span style="color:#00a8c8">return</span> <span style="color:#111">patient_image</span><span style="color:#111">,</span> <span style="color:#111">mask_image</span>
-</code></pre></div><h3 id="filtering-dataset">Filtering dataset</h3>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">patient_image</span><span style="color:#111">,</span> <span style="color:#111">mask_image</span></code></pre></div>
+<p></small></p>
+
+<h3 id="filtering-dataset">Filtering dataset</h3>
+
 <p>One good thing about using tf.datasets is to be able to setup your data processing pipeline.
 For example, in 3D-IRCARD dataset you may have problem training your model if there is some large amount of empty masks in proportion of non-empty.
 You may want to set them to similar sizes or to use just a small part of empty images for training the model.
 In the case of IRCAD, when training for some organs that only exist in one part of the body, the liver for example, you will find lots of empty images. It is nice to have empty images, because your model needs to differentiate what a not-liver is.
 But having too few blank images makes your model overfit always putting a liver format where it think it should be. It will be kind of right because livers have more or less the same size and shape, but it will miss terribly saying that you have a liver inside your lungs.</p>
+
 <p>One way of filtering images is too remove randomly a certain amount to balance the amount of examples.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3">
-<span style="color:#00a8c8">def</span> <span style="color:#75af00">remove_empty_mask_with_prob</span><span style="color:#111">(</span><span style="color:#111">mask</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=.</span><span style="color:#ae81ff">6</span><span style="color:#111">,</span> <span style="color:#111">epsilon</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1e-3</span><span style="color:#111">):</span>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">remove_empty_mask_with_prob</span><span style="color:#111">(</span><span style="color:#111">mask</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=.</span><span style="color:#ae81ff">6</span><span style="color:#111">,</span> <span style="color:#111">epsilon</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1e-3</span><span style="color:#111">):</span>
     <span style="color:#00a8c8">if</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">less_equal</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">reduce_sum</span><span style="color:#111">(</span><span style="color:#111">mask</span><span style="color:#111">),</span>
                           <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">cast</span><span style="color:#111">(</span><span style="color:#111">epsilon</span><span style="color:#111">,</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)):</span>
         <span style="color:#00a8c8">return</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">greater</span><span style="color:#111">(</span>
@@ -157,198 +198,255 @@ But having too few blank images makes your model overfit always putting a liver 
 
 <span style="color:#75715e"># ...</span>
 
-<span style="color:#111">filtered_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">full_dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">filter_dataset_fn</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span>
-</code></pre></div><h3 id="mapping">Mapping</h3>
+<span style="color:#111">filtered_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">full_dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">filter_dataset_fn</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span></code></pre></div>
+<h3 id="mapping">Mapping</h3>
+
 <p>One common action when working with images, and many other datasets, is to process data and give the model something easier to digest or adding noise to the input so the model does not overfit due to some similarities.
 With TF Datasets it is possible to stack this operations like this:</p>
-<!-- raw HTML omitted -->
-<p>def apply_random_median_filter(ds, prob=.5):
-return ds.map(lambda x, y: median_filter_with_prob((x,y), prob))</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">
-```python3
-@tf.function
-def gauss_noise_with_prob(sample_pair, expected_noise_rate=1e-2, prob=1.):
-    r = tf.cast(tf.squeeze(tf.random.uniform((1,))), tf.float32)
-    if tf.math.less_equal(r,
-                          tf.cast(prob, tf.float32)):
-        var = 1e-2
-        mean, sigma = 0., tf.math.pow(var, 0.5)
-        shape = (D, D, 1) 
-        noise = tf.random.normal(shape, mean, sigma) * expected_noise_rate
-        noise_image = tf.math.add(sample_pair[0], noise)
 
-        noise_image = tf.clip_by_value(noise_image, clip_value_min=0., clip_value_max=1.)
-        return noise_image, sample_pair[1]
-    else:
-        return sample_pair
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#75af00">@tf</span><span style="color:#f92672">.</span><span style="color:#111">function</span>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">median_filter_with_prob</span><span style="color:#111">(</span><span style="color:#111">sample_pair</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1.</span><span style="color:#111">):</span>
+    <span style="color:#111">r</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">cast</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">squeeze</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">random</span><span style="color:#f92672">.</span><span style="color:#111">uniform</span><span style="color:#111">((</span><span style="color:#ae81ff">1</span><span style="color:#111">,))),</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">if</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">less_equal</span><span style="color:#111">(</span><span style="color:#111">r</span><span style="color:#111">,</span>
+                          <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">cast</span><span style="color:#111">(</span><span style="color:#111">prob</span><span style="color:#111">,</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)):</span>
+        <span style="color:#00a8c8">return</span> <span style="color:#111">sample_pair</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">],</span> <span style="color:#111">tfa</span><span style="color:#f92672">.</span><span style="color:#111">image</span><span style="color:#f92672">.</span><span style="color:#111">median_filter2d</span><span style="color:#111">(</span><span style="color:#111">sample_pair</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">],</span> <span style="color:#111">filter_shape</span><span style="color:#f92672">=</span><span style="color:#111">(</span><span style="color:#ae81ff">4</span><span style="color:#111">,</span><span style="color:#ae81ff">4</span><span style="color:#111">))</span>
+    <span style="color:#00a8c8">else</span><span style="color:#111">:</span>
+        <span style="color:#00a8c8">return</span> <span style="color:#111">sample_pair</span>
     
-def apply_random_gauss_noise(ds, prob=.25):
-    return ds.map(lambda x, y: gauss_noise_with_prob((x,y), prob))
-</code></pre></div><!-- raw HTML omitted -->
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">apply_random_median_filter</span><span style="color:#111">(</span><span style="color:#111">ds</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=.</span><span style="color:#ae81ff">5</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">ds</span><span style="color:#f92672">.</span><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">,</span> <span style="color:#111">y</span><span style="color:#111">:</span> <span style="color:#111">median_filter_with_prob</span><span style="color:#111">((</span><span style="color:#111">x</span><span style="color:#111">,</span><span style="color:#111">y</span><span style="color:#111">),</span> <span style="color:#111">prob</span><span style="color:#111">))</span>
+
+<span style="color:#75af00">@tf</span><span style="color:#f92672">.</span><span style="color:#111">function</span>
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">gauss_noise_with_prob</span><span style="color:#111">(</span><span style="color:#111">sample_pair</span><span style="color:#111">,</span> <span style="color:#111">expected_noise_rate</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1e-2</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1.</span><span style="color:#111">):</span>
+    <span style="color:#111">r</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">cast</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">squeeze</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">random</span><span style="color:#f92672">.</span><span style="color:#111">uniform</span><span style="color:#111">((</span><span style="color:#ae81ff">1</span><span style="color:#111">,))),</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">if</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">less_equal</span><span style="color:#111">(</span><span style="color:#111">r</span><span style="color:#111">,</span>
+                          <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">cast</span><span style="color:#111">(</span><span style="color:#111">prob</span><span style="color:#111">,</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">float32</span><span style="color:#111">)):</span>
+        <span style="color:#111">var</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1e-2</span>
+        <span style="color:#111">mean</span><span style="color:#111">,</span> <span style="color:#111">sigma</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.</span><span style="color:#111">,</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">pow</span><span style="color:#111">(</span><span style="color:#111">var</span><span style="color:#111">,</span> <span style="color:#ae81ff">0.5</span><span style="color:#111">)</span>
+        <span style="color:#111">shape</span> <span style="color:#f92672">=</span> <span style="color:#111">(</span><span style="color:#111">D</span><span style="color:#111">,</span> <span style="color:#111">D</span><span style="color:#111">,</span> <span style="color:#ae81ff">1</span><span style="color:#111">)</span> 
+        <span style="color:#111">noise</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">random</span><span style="color:#f92672">.</span><span style="color:#111">normal</span><span style="color:#111">(</span><span style="color:#111">shape</span><span style="color:#111">,</span> <span style="color:#111">mean</span><span style="color:#111">,</span> <span style="color:#111">sigma</span><span style="color:#111">)</span> <span style="color:#f92672">*</span> <span style="color:#111">expected_noise_rate</span>
+        <span style="color:#111">noise_image</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">math</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">sample_pair</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">],</span> <span style="color:#111">noise</span><span style="color:#111">)</span>
+
+        <span style="color:#111">noise_image</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">clip_by_value</span><span style="color:#111">(</span><span style="color:#111">noise_image</span><span style="color:#111">,</span> <span style="color:#111">clip_value_min</span><span style="color:#f92672">=</span><span style="color:#ae81ff">0.</span><span style="color:#111">,</span> <span style="color:#111">clip_value_max</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1.</span><span style="color:#111">)</span>
+        <span style="color:#00a8c8">return</span> <span style="color:#111">noise_image</span><span style="color:#111">,</span> <span style="color:#111">sample_pair</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span>
+    <span style="color:#00a8c8">else</span><span style="color:#111">:</span>
+        <span style="color:#00a8c8">return</span> <span style="color:#111">sample_pair</span>
+    
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">apply_random_gauss_noise</span><span style="color:#111">(</span><span style="color:#111">ds</span><span style="color:#111">,</span> <span style="color:#111">prob</span><span style="color:#f92672">=.</span><span style="color:#ae81ff">25</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">ds</span><span style="color:#f92672">.</span><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">,</span> <span style="color:#111">y</span><span style="color:#111">:</span> <span style="color:#111">gauss_noise_with_prob</span><span style="color:#111">((</span><span style="color:#111">x</span><span style="color:#111">,</span><span style="color:#111">y</span><span style="color:#111">),</span> <span style="color:#111">prob</span><span style="color:#111">))</span></code></pre></div>
+<p></small></p>
+
 <p>And finally stack them to your data pipeline like:</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3">
-<span style="color:#111">train_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">apply_random_median_filter</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span>
-<span style="color:#111">train_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">apply_random_gauss_noise</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span>
 
-</code></pre></div><p>To exhibit an image you can take it from your dataset</p>
-<!-- raw HTML omitted -->
-<pre><code>fig, axes = plt.subplots(1,2, figsize=(8,8))
-axes[0].imshow(np.squeeze(patient), cmap='gray', interpolation='none', filternorm=False)
-axes[0].set_title('Patient Scan')
-axes[0].set_axis_off()
-axes[1].imshow(np.squeeze(mask), cmap='gray', interpolation='none', filternorm=False,
-              norm=plt.Normalize(vmin=0., vmax=1.))
-axes[1].set_title('Segmentation')
-axes[1].set_axis_off()
-</code></pre>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">&lt;/small&gt;
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#111">train_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">apply_random_median_filter</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span>
+<span style="color:#111">train_dataset</span> <span style="color:#f92672">=</span> <span style="color:#111">dataset</span><span style="color:#f92672">.</span><span style="color:#111">apply</span><span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">apply_random_gauss_noise</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">))</span></code></pre></div>
+<p></small></p>
 
-&lt;center&gt;
-&lt;img src=&#34;/assets/images/unet_remake_display_image.png&#34; width=&#34;70%&#34;&gt;
-&lt;/center&gt;
+<p>To exhibit an image you can take it from your dataset</p>
 
-
-## Modeling in TF2
-
-You have basically 3 ways of modeling in TF2 using integrated keras.
-
-- **Sequential**: You stack one layer in front of the other and use common model interface to train (fit) and evaluate your model.
-- **Functional**: A functional-like API is provided so you can build your model much like building a graph
-- ** Model Class Override**: You can build your models overwriting default methods and basically applying any rule you like.
-
-Overriding keras.Model to build a Custom Class is pretty useful for researchers who want to test new models or techniques and for treating special complex cases.
-The UNET case is not complex, but for sake of learning and testing the concept I used it anyway.
-And using custom classes is almost as easy as using other methods:
-
-The most basic of implementation demands you to override 2 methods: `__init__` and `call`.
-
-```python3
-class YourCustomModel(tf.keras.Model):
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#111">n</span> <span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+<span style="color:#111">sample_images</span> <span style="color:#f92672">=</span> <span style="color:#111">list</span><span style="color:#111">(</span><span style="color:#111">train_dataset</span><span style="color:#f92672">.</span><span style="color:#111">skip</span><span style="color:#111">(</span><span style="color:#111">np</span><span style="color:#f92672">.</span><span style="color:#111">random</span><span style="color:#f92672">.</span><span style="color:#111">randint</span><span style="color:#111">(</span><span style="color:#ae81ff">0</span><span style="color:#111">,</span> <span style="color:#111">train_size</span><span style="color:#f92672">-</span><span style="color:#111">n</span><span style="color:#111">))</span><span style="color:#f92672">.</span><span style="color:#111">take</span><span style="color:#111">(</span><span style="color:#111">n</span><span style="color:#111">))</span>
+<span style="color:#00a8c8">for</span> <span style="color:#111">x</span> <span style="color:#f92672">in</span> <span style="color:#111">sample_images</span><span style="color:#111">:</span>
+    <span style="color:#111">patient</span> <span style="color:#f92672">=</span> <span style="color:#111">x</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">numpy</span><span style="color:#111">()</span>
+    <span style="color:#111">mask</span> <span style="color:#f92672">=</span> <span style="color:#111">x</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">numpy</span><span style="color:#111">()</span>
     
-    def __init__(self):
-        super(UNET_Model, self).__init__()
-        # ...
+    <span style="color:#111">fig</span><span style="color:#111">,</span> <span style="color:#111">axes</span> <span style="color:#f92672">=</span> <span style="color:#111">plt</span><span style="color:#f92672">.</span><span style="color:#111">subplots</span><span style="color:#111">(</span><span style="color:#ae81ff">1</span><span style="color:#111">,</span><span style="color:#ae81ff">2</span><span style="color:#111">,</span> <span style="color:#111">figsize</span><span style="color:#f92672">=</span><span style="color:#111">(</span><span style="color:#ae81ff">8</span><span style="color:#111">,</span><span style="color:#ae81ff">8</span><span style="color:#111">))</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">imshow</span><span style="color:#111">(</span><span style="color:#111">np</span><span style="color:#f92672">.</span><span style="color:#111">squeeze</span><span style="color:#111">(</span><span style="color:#111">patient</span><span style="color:#111">),</span> <span style="color:#111">cmap</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;gray&#39;</span><span style="color:#111">,</span> <span style="color:#111">interpolation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;none&#39;</span><span style="color:#111">,</span> <span style="color:#111">filternorm</span><span style="color:#f92672">=</span><span style="color:#00a8c8">False</span><span style="color:#111">)</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">set_title</span><span style="color:#111">(</span><span style="color:#d88200">&#39;Patient Scan&#39;</span><span style="color:#111">)</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">0</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">set_axis_off</span><span style="color:#111">()</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">imshow</span><span style="color:#111">(</span><span style="color:#111">np</span><span style="color:#f92672">.</span><span style="color:#111">squeeze</span><span style="color:#111">(</span><span style="color:#111">mask</span><span style="color:#111">),</span> <span style="color:#111">cmap</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;gray&#39;</span><span style="color:#111">,</span> <span style="color:#111">interpolation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;none&#39;</span><span style="color:#111">,</span> <span style="color:#111">filternorm</span><span style="color:#f92672">=</span><span style="color:#00a8c8">False</span><span style="color:#111">,</span>
+                  <span style="color:#111">norm</span><span style="color:#f92672">=</span><span style="color:#111">plt</span><span style="color:#f92672">.</span><span style="color:#111">Normalize</span><span style="color:#111">(</span><span style="color:#111">vmin</span><span style="color:#f92672">=</span><span style="color:#ae81ff">0.</span><span style="color:#111">,</span> <span style="color:#111">vmax</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1.</span><span style="color:#111">))</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">set_title</span><span style="color:#111">(</span><span style="color:#d88200">&#39;Segmentation&#39;</span><span style="color:#111">)</span>
+    <span style="color:#111">axes</span><span style="color:#111">[</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">.</span><span style="color:#111">set_axis_off</span><span style="color:#111">()</span></code></pre></div>
+<p></small></p>
+
+<p><center>
+<img src="../../assets/images/unet_remake_display_image.png" width="70%">
+</center></p>
+
+<h2 id="modeling-in-tf2">Modeling in TF2</h2>
+
+<p>You have basically 3 ways of modeling in TF2 using integrated keras.</p>
+
+<ul>
+<li><strong>Sequential</strong>: You stack one layer in front of the other and use common model interface to train (fit) and evaluate your model.</li>
+<li><strong>Functional</strong>: A functional-like API is provided so you can build your model much like building a graph</li>
+<li><strong>Model Class Override</strong>: You can build your models overwriting default methods and basically applying any rule you like.</li>
+</ul>
+
+<p>Overriding keras.Model to build a Custom Class is pretty useful for researchers who want to test new models or techniques and for treating special complex cases.</p>
+
+<p>The UNET case is not complex, but for sake of learning and testing the concept I used it anyway.
+And using custom classes is almost as easy as using other methods:</p>
+
+<p>The most basic of implementation demands you to override 2 methods: <code>__init__</code> and <code>call</code>.
+<small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">class</span> <span style="color:#75af00">YourCustomModel</span><span style="color:#111">(</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">Model</span><span style="color:#111">):</span>
     
-    def call(self):
-        # ...
-</code></pre></div><h3 id="callbacks">Callbacks</h3>
+    <span style="color:#00a8c8">def</span> <span style="color:#75af00">__init__</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">):</span>
+        <span style="color:#111">super</span><span style="color:#111">(</span><span style="color:#111">UNET_Model</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#111">)</span><span style="color:#f92672">.</span><span style="color:#111">__init__</span><span style="color:#111">()</span>
+        <span style="color:#75715e"># ...</span>
+    
+    <span style="color:#00a8c8">def</span> <span style="color:#75af00">call</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">):</span>
+        <span style="color:#75715e"># ...</span></code></pre></div>
+<p></small></p>
+
+<h3 id="callbacks">Callbacks</h3>
+
 <p>One thing I haven&rsquo;t covered in the first article and it is actually pretty useful are TensorFlow Callbacks.
 Callbacks, as in any form of them in programming context, have an interface are injected in a framework/pipeline/code to execute user code in predetermined moments.</p>
+
 <p>TensorFlow already have many useful callback function, but some of the more used are:</p>
+
 <ul>
-<li><strong>ModelCheckpoint</strong>: Saves your model with certain periodicity. <!-- raw HTML omitted -->REFERENCE<!-- raw HTML omitted --></li>
-<li><strong>EarlyStopping</strong>: Automatically stops your model training if it does not improve<!-- raw HTML omitted -->DOCUMENTATION<!-- raw HTML omitted --></li>
-<li><strong>TensorBoard</strong>: reports the metrics and results of your model into a TensorBoard dashboard <!-- raw HTML omitted -->GUIDE<!-- raw HTML omitted --></li>
+<li><strong>ModelCheckpoint</strong>: Saves your model with certain periodicity. <a href="https://www.tensorflow.org/tutorials/keras/save_and_load" target="_blank">REFERENCE</a></li>
+<li><strong>EarlyStopping</strong>: Automatically stops your model training if it does not improve<a href="https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/EarlyStopping" target="_blank">DOCUMENTATION</a></li>
+<li><strong>TensorBoard</strong>: reports the metrics and results of your model into a TensorBoard dashboard <a href="https://www.tensorflow.org/tensorboard/scalars_and_keras" target="_blank">GUIDE</a></li>
 </ul>
+
 <p>You can also implement your own CallBacks by just following Callbacks interface.</p>
-<!-- raw HTML omitted -->
-<pre><code>    self.model = UNET_Model()
-    
-    # ...
 
-    self.checkpoint_cb = ModelCheckpoint(filepath=checkpoint_path,
-                                         monitor='loss',
-                                         save_best_only=False, # set to false later
-                                         save_weights_only=True, # set to false later
-                                         save_freq='epoch',
-                                         verbose=1)
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#f92672">from</span> <span style="color:#111">tensorflow.keras.callbacks</span> <span style="color:#00a8c8">import</span> <span style="color:#111">ModelCheckpoint</span><span style="color:#111">,</span>
+                                       <span style="color:#111">EarlyStopping</span><span style="color:#111">,</span>
+                                       <span style="color:#111">TensorBoard</span>
 
-    self.early_stop_cb = EarlyStopping(monitor='loss',
-                                   min_delta=5e-5,
-                                   patience=5,
-                                   verbose=1)
-    
-    self.tensorboard_cb = TensorBoard(log_dir='logs',
-                                      histogram_freq=0,
-                                      write_graph=True,
-                                      write_images=True,
-                                      update_freq='epoch',
-                                      profile_batch=2,
-                                      embeddings_freq=10)
+<span style="color:#00a8c8">class</span> <span style="color:#75af00">UNET</span><span style="color:#111">():</span>
+        <span style="color:#00a8c8">def</span> <span style="color:#75af00">__init__</span><span style="color:#111">(</span><span style="color:#111">self</span><span style="color:#111">,</span>
+                 <span style="color:#111">optimizer</span><span style="color:#111">,</span>
+                 <span style="color:#111">loss</span><span style="color:#111">,</span>
+                 <span style="color:#111">metrics</span><span style="color:#f92672">=</span><span style="color:#111">[</span><span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">metrics</span><span style="color:#f92672">.</span><span style="color:#111">mean_squared_error</span><span style="color:#111">],</span>
+                 <span style="color:#111">num_epochs</span><span style="color:#f92672">=</span><span style="color:#ae81ff">150</span><span style="color:#111">,</span>
+                 <span style="color:#111">batch_size</span><span style="color:#f92672">=</span><span style="color:#ae81ff">32</span><span style="color:#111">,</span>
+                 <span style="color:#111">checkpoint_path</span><span style="color:#f92672">=</span><span style="color:#d88200">&#34;unet.ckpt&#34;</span><span style="color:#111">):</span>
+        
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">model</span> <span style="color:#f92672">=</span> <span style="color:#111">UNET_Model</span><span style="color:#111">()</span>
+        
+        <span style="color:#75715e"># ...</span>
 
-    self.callbacks = [ 
-                    self.checkpoint_cb,
-                    self.early_stop_cb,
-                    self.tensorboard_cb
-                     ]                                          
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">checkpoint_cb</span> <span style="color:#f92672">=</span> <span style="color:#111">ModelCheckpoint</span><span style="color:#111">(</span><span style="color:#111">filepath</span><span style="color:#f92672">=</span><span style="color:#111">checkpoint_path</span><span style="color:#111">,</span>
+                                             <span style="color:#111">monitor</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;loss&#39;</span><span style="color:#111">,</span>
+                                             <span style="color:#111">save_best_only</span><span style="color:#f92672">=</span><span style="color:#00a8c8">False</span><span style="color:#111">,</span>
+                                             <span style="color:#111">save_weights_only</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span>
+                                             <span style="color:#111">save_freq</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;epoch&#39;</span><span style="color:#111">,</span>
+                                             <span style="color:#111">verbose</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#111">)</span>
 
-    self.model.compile(optimizer=self.optimizer,
-                       loss=self.loss_function,
-                       metrics=self.metrics)
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">early_stop_cb</span> <span style="color:#f92672">=</span> <span style="color:#111">EarlyStopping</span><span style="color:#111">(</span><span style="color:#111">monitor</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;loss&#39;</span><span style="color:#111">,</span>
+                                       <span style="color:#111">min_delta</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5e-5</span><span style="color:#111">,</span>
+                                       <span style="color:#111">patience</span><span style="color:#f92672">=</span><span style="color:#ae81ff">5</span><span style="color:#111">,</span>
+                                       <span style="color:#111">verbose</span><span style="color:#f92672">=</span><span style="color:#ae81ff">1</span><span style="color:#111">)</span>
+        
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">tensorboard_cb</span> <span style="color:#f92672">=</span> <span style="color:#111">TensorBoard</span><span style="color:#111">(</span><span style="color:#111">log_dir</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;logs&#39;</span><span style="color:#111">,</span>
+                                          <span style="color:#111">histogram_freq</span><span style="color:#f92672">=</span><span style="color:#ae81ff">0</span><span style="color:#111">,</span>
+                                          <span style="color:#111">write_graph</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span>
+                                          <span style="color:#111">write_images</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span>
+                                          <span style="color:#111">update_freq</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;epoch&#39;</span><span style="color:#111">,</span>
+                                          <span style="color:#111">profile_batch</span><span style="color:#f92672">=</span><span style="color:#ae81ff">2</span><span style="color:#111">,</span>
+                                          <span style="color:#111">embeddings_freq</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
 
-    # ...
-</code></pre>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">&lt;/small&gt;
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">callbacks</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span> 
+                        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">checkpoint_cb</span><span style="color:#111">,</span>
+                        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">early_stop_cb</span><span style="color:#111">,</span>
+                        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">tensorboard_cb</span>
+                         <span style="color:#111">]</span>                                          
 
-I won&#39;t explain how each one of this callbacks work because their documentation is actually very small and simple, and in the end I would just be paraphrasing what is written there.
+        <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">model</span><span style="color:#f92672">.</span><span style="color:#111">compile</span><span style="color:#111">(</span><span style="color:#111">optimizer</span><span style="color:#f92672">=</span><span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">optimizer</span><span style="color:#111">,</span>
+                           <span style="color:#111">loss</span><span style="color:#f92672">=</span><span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">loss_function</span><span style="color:#111">,</span>
+                           <span style="color:#111">metrics</span><span style="color:#f92672">=</span><span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">metrics</span><span style="color:#111">)</span>
 
-### Metrics
+        <span style="color:#75715e"># ...</span></code></pre></div>
+<p></small></p>
 
-Metrics in TF are just values that you can use keep track during training but do not influence training.
-For example, you may use Dice score to train, and if you find necessary keep track of `mean_squared_difference` or any other value.
-I also will not go over metrics, because it is very well documented and explained &lt;a href=&#34;https://www.tensorflow.org/api_docs/python/tf/keras/metrics&#34; target=&#34;_blank&#34;&gt;here&lt;/a&gt;.
+<p>I won&rsquo;t explain how each one of this callbacks work because their documentation is actually very small and simple, and in the end I would just be paraphrasing what is written there.</p>
 
-## UNET Model
+<h3 id="metrics">Metrics</h3>
 
-Just to refresh the idea of UNET model, it goes like this:
+<p>Metrics in TF are just values that you can use keep track during training but do not influence training.
+For example, you may use Dice score to train, and if you find necessary keep track of <code>mean_squared_difference</code> or any other value.
+I also will not go over metrics, because it is very well documented and explained <a href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics" target="_blank">here</a>.</p>
 
-&lt;center&gt;
-&lt;a href=&#34;https://arxiv.org/pdf/1505.04597.pdf&#34; target=&#34;_blank&#34;&gt;&lt;img src=&#34;/assets/images/unet_architecture.png&#34; width=&#34;70%&#34;&gt;
-&lt;small&gt;Source: Ronnenberger et al, 2015&lt;/small&gt;&lt;/a&gt;
-&lt;/center&gt;
+<h2 id="unet-model">UNET Model</h2>
 
-In UNET the basic idea is to feed an image and minimize the output difference to a segmentation image. So the input and output of the model are images.
+<p>Just to refresh the idea of UNET model, it goes like this:</p>
 
-### Loss function
+<p><center>
+<a href="https://arxiv.org/pdf/1505.04597.pdf" target="_blank"><img src="../../assets/images/unet_architecture.png" width="70%">
+<small>Source: Ronnenberger et al, 2015</small></a>
+</center></p>
 
-For the model to learn what are the important features to observe, first it is necessary to tell it how to compare segmentation images.
+<p>In UNET the basic idea is to feed an image and minimize the output difference to a segmentation image. So the input and output of the model are images.</p>
 
-Segmentation images, when only considering one class for segmentation, are binary. This means, that they are either 0 where there is no mask, and 1 where the mask is selecting the object of interest.
+<h3 id="loss-function">Loss function</h3>
 
-Simple metrics like `mean_squared_difference` are no good for cases like this, because the fastest route to minimize differences is to go to the mean value all around the image.
-So people have used some different methods:
+<p>For the model to learn what are the important features to observe, first it is necessary to tell it how to compare segmentation images.</p>
 
-* Accuracy
-* Jaccard Index (Intersection Over Union)
-* Dice-Sorosen Coefficient
+<p>Segmentation images, when only considering one class for segmentation, are binary. This means, that they are either 0 where there is no mask, and 1 where the mask is selecting the object of interest.</p>
 
-I will not explain each one of them, I already did some explanation in previous post but you can get a very nice visualization in &lt;a href=&#34;https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2&#34;&gt;this Ekin Tiu post&lt;/a&gt;.
-But for segmentation, usually Dice (f1-score) is good because it provides an positive increase releation of intersection area over the false positive and negative detections. 
+<p>Simple metrics like <code>mean_squared_difference</code> are no good for cases like this, because the fastest route to minimize differences is to go to the mean value all around the image.
+So people have used some different methods:</p>
 
-The loss function using dice can be computed as the negative of its value. So when we minimize the loss, we increase the Dice Score.
+<ul>
+<li>Accuracy</li>
+<li>Jaccard Index (Intersection Over Union)</li>
+<li>Dice-Sorosen Coefficient</li>
+</ul>
 
-The single class dice function can be computed as:
+<p>I will not explain each one of them, I already did some explanation in previous post but you can get a very nice visualization in <a href="https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2">this Ekin Tiu post</a>.
+But for segmentation, usually Dice (f1-score) is good because it provides an positive increase releation of intersection area over the false positive and negative detections.</p>
 
-&lt;small&gt;
-```python3
-from tensorflow.keras import backend as K
+<p>The loss function using dice can be computed as the negative of its value. So when we minimize the loss, we increase the Dice Score.</p>
 
-def dice_coef(y_true, y_pred, smooth = 1.):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+<p>The single class dice function can be computed as:</p>
 
-def dice_coef_loss(y_true, y_pred):
-    return -dice_coef(y_true, y_pred)
-</code></pre></div><!-- raw HTML omitted -->
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#f92672">from</span> <span style="color:#111">tensorflow.keras</span> <span style="color:#00a8c8">import</span> <span style="color:#111">backend</span> <span style="color:#00a8c8">as</span> <span style="color:#111">K</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">dice_coef</span><span style="color:#111">(</span><span style="color:#111">y_true</span><span style="color:#111">,</span> <span style="color:#111">y_pred</span><span style="color:#111">,</span> <span style="color:#111">smooth</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.</span><span style="color:#111">):</span>
+    <span style="color:#111">y_true_f</span> <span style="color:#f92672">=</span> <span style="color:#111">K</span><span style="color:#f92672">.</span><span style="color:#111">flatten</span><span style="color:#111">(</span><span style="color:#111">y_true</span><span style="color:#111">)</span>
+    <span style="color:#111">y_pred_f</span> <span style="color:#f92672">=</span> <span style="color:#111">K</span><span style="color:#f92672">.</span><span style="color:#111">flatten</span><span style="color:#111">(</span><span style="color:#111">y_pred</span><span style="color:#111">)</span>
+    <span style="color:#111">intersection</span> <span style="color:#f92672">=</span> <span style="color:#111">K</span><span style="color:#f92672">.</span><span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">y_true_f</span> <span style="color:#f92672">*</span> <span style="color:#111">y_pred_f</span><span style="color:#111">)</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">(</span><span style="color:#ae81ff">2.</span> <span style="color:#f92672">*</span> <span style="color:#111">intersection</span> <span style="color:#f92672">+</span> <span style="color:#111">smooth</span><span style="color:#111">)</span> <span style="color:#f92672">/</span> <span style="color:#111">(</span><span style="color:#111">K</span><span style="color:#f92672">.</span><span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">y_true_f</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> <span style="color:#111">K</span><span style="color:#f92672">.</span><span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">y_pred_f</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> <span style="color:#111">smooth</span><span style="color:#111">)</span>
+
+<span style="color:#00a8c8">def</span> <span style="color:#75af00">dice_coef_loss</span><span style="color:#111">(</span><span style="color:#111">y_true</span><span style="color:#111">,</span> <span style="color:#111">y_pred</span><span style="color:#111">):</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#f92672">-</span><span style="color:#111">dice_coef</span><span style="color:#111">(</span><span style="color:#111">y_true</span><span style="color:#111">,</span> <span style="color:#111">y_pred</span><span style="color:#111">)</span></code></pre></div>
+<p></small></p>
+
 <h3 id="convolution-and-deconvolution-layers">Convolution and Deconvolution Layers</h3>
+
 <p>The main two types of structures in UNET helps to condense feature and then create the output.
 In a very brief way, if you need more details, please check my previous post, the UNET model create layers by convolving features and then create the output by &ldquo;de-convolving&rdquo; the data with adjusted weights.</p>
+
 <p><strong>Convolution Layer</strong>
-This will be just a very (VERY) simple explanetion. For more details, or a real explanation please <!-- raw HTML omitted --> check my other post<!-- raw HTML omitted -->.</p>
+This will be just a very (VERY) simple explanetion. For more details, or a real explanation please <a href="https://medium.com/@fabio.sancinetti/u-net-convnet-for-ct-scan-segmentation-6cc0d465eed3" target="_blank"> check my other post</a>.</p>
+
 <p>The full structure is composed of 3 types of layers:</p>
+
 <ul>
 <li><strong>Convolution Layer</strong>: capture features with locally dependency</li>
 <li><strong>MaxPooling</strong>: Reduces dimensionality by capturing the biggest (or smallest) value in a region</li>
 <li><strong>Dropout</strong>: Intended to help avoiding overfitting, it &ldquo;forgets&rdquo; the result some times.</li>
 </ul>
-<!-- raw HTML omitted -->
+
+<p><small></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">get_conv_layer</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_size</span><span style="color:#111">,</span> <span style="color:#111">pool_size</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#111">):</span>
+    <span style="color:#111">init</span> <span style="color:#f92672">=</span> <span style="color:#d88200">&#39;glorot_uniform&#39;</span>
+    <span style="color:#111">conv1</span>   <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Conv2D</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_size</span><span style="color:#111">,</span> <span style="color:#111">activation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;relu&#39;</span><span style="color:#111">,</span> <span style="color:#111">padding</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;same&#39;</span><span style="color:#111">,</span> <span style="color:#111">kernel_initializer</span><span style="color:#f92672">=</span><span style="color:#111">init</span> <span style="color:#111">,</span><span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;conv2d_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">)</span><span style="color:#f92672">+</span><span style="color:#d88200">&#39;1&#39;</span><span style="color:#111">)</span>
+    <span style="color:#111">conv2</span>   <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Conv2D</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_size</span><span style="color:#111">,</span> <span style="color:#111">activation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;relu&#39;</span><span style="color:#111">,</span> <span style="color:#111">padding</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;same&#39;</span><span style="color:#111">,</span> <span style="color:#111">kernel_initializer</span><span style="color:#f92672">=</span><span style="color:#111">init</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;conv2d_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">)</span><span style="color:#f92672">+</span><span style="color:#d88200">&#39;2&#39;</span><span style="color:#111">)</span>
+    <span style="color:#111">maxpool</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">MaxPooling2D</span><span style="color:#111">(</span><span style="color:#111">pool_size</span><span style="color:#f92672">=</span><span style="color:#111">pool_size</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;maxpool_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">))</span>
+    <span style="color:#111">dropout</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Dropout</span><span style="color:#111">(</span><span style="color:#ae81ff">0.5</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;dropout_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">))</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">conv1</span><span style="color:#111">,</span> <span style="color:#111">conv2</span><span style="color:#111">,</span> <span style="color:#111">maxpool</span><span style="color:#111">,</span> <span style="color:#111">dropout</span></code></pre></div>
+<p></small></p>
+
 <p><strong>Deconvolution Layer</strong></p>
+
 <p>The Deconv layer does the opposite. It will build step by step building up the result image.
 In Convolution Layer, when running MaxPooling, the <code>pool_size</code> determines the area which will be summarized in one value.
 In the Deconvolution Layer the <code>concatenate</code> and <code>Conv2DTranspose</code> helps rebuilding the data</p>
-<!-- raw HTML omitted -->
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">get_deconv_layer</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_deconv_size</span><span style="color:#111">,</span> <span style="color:#111">stride_size</span><span style="color:#111">,</span> <span style="color:#111">filter_conv_size</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#111">):</span>
     <span style="color:#111">init</span> <span style="color:#f92672">=</span> <span style="color:#d88200">&#39;glorot_uniform&#39;</span>
     <span style="color:#111">deconv1</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Conv2DTranspose</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_deconv_size</span><span style="color:#111">,</span> <span style="color:#111">strides</span><span style="color:#f92672">=</span><span style="color:#111">stride_size</span><span style="color:#111">,</span>
@@ -357,38 +455,46 @@ In the Deconvolution Layer the <code>concatenate</code> and <code>Conv2DTranspos
     <span style="color:#111">conv1</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Conv2D</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_conv_size</span><span style="color:#111">,</span> <span style="color:#111">activation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;relu&#39;</span><span style="color:#111">,</span> <span style="color:#111">padding</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;same&#39;</span><span style="color:#111">,</span> <span style="color:#111">kernel_initializer</span><span style="color:#f92672">=</span><span style="color:#111">init</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;deconv2d_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">)</span><span style="color:#f92672">+</span><span style="color:#d88200">&#39;2&#39;</span><span style="color:#111">)</span>
     <span style="color:#111">conv2</span> <span style="color:#f92672">=</span> <span style="color:#111">tf</span><span style="color:#f92672">.</span><span style="color:#111">keras</span><span style="color:#f92672">.</span><span style="color:#111">layers</span><span style="color:#f92672">.</span><span style="color:#111">Conv2D</span><span style="color:#111">(</span><span style="color:#111">kernel_size</span><span style="color:#111">,</span> <span style="color:#111">filter_conv_size</span><span style="color:#111">,</span> <span style="color:#111">activation</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;relu&#39;</span><span style="color:#111">,</span> <span style="color:#111">padding</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;same&#39;</span><span style="color:#111">,</span> <span style="color:#111">kernel_initializer</span><span style="color:#f92672">=</span><span style="color:#111">init</span><span style="color:#111">,</span> <span style="color:#111">name</span><span style="color:#f92672">=</span><span style="color:#d88200">&#39;deconv2d_&#39;</span><span style="color:#f92672">+</span><span style="color:#111">str</span><span style="color:#111">(</span><span style="color:#111">name</span><span style="color:#111">)</span><span style="color:#f92672">+</span><span style="color:#d88200">&#39;3&#39;</span><span style="color:#111">)</span>
 
-    <span style="color:#00a8c8">return</span> <span style="color:#111">deconv1</span><span style="color:#111">,</span> <span style="color:#111">merge1</span><span style="color:#111">,</span> <span style="color:#111">conv1</span><span style="color:#111">,</span> <span style="color:#111">conv2</span>
+    <span style="color:#00a8c8">return</span> <span style="color:#111">deconv1</span><span style="color:#111">,</span> <span style="color:#111">merge1</span><span style="color:#111">,</span> <span style="color:#111">conv1</span><span style="color:#111">,</span> <span style="color:#111">conv2</span></code></pre></div>
+<p></small></p>
 
-</code></pre></div><!-- raw HTML omitted -->
 <h3 id="calling-the-layers">Calling the layers</h3>
+
 <p>This post is alredy getting pretty large and I haven&rsquo;t even show the results or argued about it. So I won&rsquo;t be talking about the source code itself, as it is available on the github in the link in the beginning of the post. But I will let part of the code for building the conv and deconv layers here. But rest assured, only thing being done is to follow the UNET architecture, only resizing in something that fits in my computer.</p>
+
 <p><strong>Convolution Layer</strong></p>
-<!-- raw HTML omitted -->
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">call_conv_layer</span><span style="color:#111">(</span><span style="color:#111">inputs</span><span style="color:#111">,</span> <span style="color:#111">conv1</span><span style="color:#111">,</span> <span style="color:#111">conv2</span><span style="color:#111">,</span> <span style="color:#111">maxpool</span><span style="color:#111">,</span> <span style="color:#111">dropout</span><span style="color:#111">):</span>
     <span style="color:#111">c1</span> <span style="color:#f92672">=</span> <span style="color:#111">conv1</span><span style="color:#111">(</span><span style="color:#111">inputs</span><span style="color:#111">)</span>
     <span style="color:#111">c1</span> <span style="color:#f92672">=</span> <span style="color:#111">conv2</span><span style="color:#111">(</span><span style="color:#111">c1</span><span style="color:#111">)</span>
     <span style="color:#111">mp</span> <span style="color:#f92672">=</span> <span style="color:#111">maxpool</span><span style="color:#111">(</span><span style="color:#111">c1</span><span style="color:#111">)</span>
     <span style="color:#111">dp</span> <span style="color:#f92672">=</span> <span style="color:#111">dropout</span><span style="color:#111">(</span><span style="color:#111">mp</span><span style="color:#111">)</span>
 
-    <span style="color:#00a8c8">return</span> <span style="color:#111">c1</span><span style="color:#111">,</span> <span style="color:#111">dp</span>
-</code></pre></div><!-- raw HTML omitted -->
+    <span style="color:#00a8c8">return</span> <span style="color:#111">c1</span><span style="color:#111">,</span> <span style="color:#111">dp</span></code></pre></div>
+<p></small></p>
+
 <p><strong>Deconvolution Layer</strong></p>
-<!-- raw HTML omitted -->
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">call_deconv_layer</span><span style="color:#111">(</span><span style="color:#111">inputs_1</span><span style="color:#111">,</span> <span style="color:#111">inputs_2</span><span style="color:#111">,</span> <span style="color:#111">deconv</span><span style="color:#111">,</span> <span style="color:#111">merge</span><span style="color:#111">,</span> <span style="color:#111">conv1</span><span style="color:#111">,</span> <span style="color:#111">conv2</span><span style="color:#111">):</span>
     <span style="color:#111">up</span> <span style="color:#f92672">=</span> <span style="color:#111">merge</span><span style="color:#111">([</span><span style="color:#111">deconv</span><span style="color:#111">(</span><span style="color:#111">inputs_1</span><span style="color:#111">),</span> <span style="color:#111">inputs_2</span><span style="color:#111">],</span> <span style="color:#111">axis</span><span style="color:#f92672">=</span><span style="color:#ae81ff">3</span><span style="color:#111">)</span>
     <span style="color:#111">cv</span> <span style="color:#f92672">=</span> <span style="color:#111">conv1</span><span style="color:#111">(</span><span style="color:#111">up</span><span style="color:#111">)</span>
     <span style="color:#111">cv</span> <span style="color:#f92672">=</span> <span style="color:#111">conv2</span><span style="color:#111">(</span><span style="color:#111">cv</span><span style="color:#111">)</span>
 
-    <span style="color:#00a8c8">return</span> <span style="color:#111">cv</span>
-</code></pre></div><!-- raw HTML omitted -->
+    <span style="color:#00a8c8">return</span> <span style="color:#111">cv</span></code></pre></div>
+<p></small></p>
+
 <p><strong>Putting all together</strong></p>
+
 <ul>
 <li>Input -&gt; Conv Layer 1 -&gt; Conv Layer 2 &hellip; -&gt;</li>
 <li>Midle Convution2D layers -&gt;</li>
 <li>Deconv Layer 1 -&gt; Deconv Layer 2 -&gt; &hellip;</li>
 <li>Output Layer</li>
 </ul>
-<!-- raw HTML omitted -->
+
+<p><small></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#111">ip</span> <span style="color:#f92672">=</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">input_layer</span><span style="color:#111">(</span><span style="color:#111">inputs</span><span style="color:#111">)</span>
 
 <span style="color:#111">c1</span><span style="color:#111">,</span> <span style="color:#111">d1</span> <span style="color:#f92672">=</span> <span style="color:#111">call_conv_layer</span><span style="color:#111">(</span><span style="color:#111">ip</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">conv2d_11</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">conv2d_12</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">maxpool_1</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">dropout_1</span><span style="color:#111">)</span>
@@ -401,9 +507,22 @@ In the Deconvolution Layer the <code>concatenate</code> and <code>Conv2DTranspos
 <span style="color:#111">c14</span> <span style="color:#f92672">=</span> <span style="color:#111">call_deconv_layer</span><span style="color:#111">(</span><span style="color:#111">c13</span><span style="color:#111">,</span> <span style="color:#111">c5</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">deconv2d_141</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">merge_14</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">conv2d_141</span><span style="color:#111">,</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">conv2d_142</span><span style="color:#111">)</span>
 <span style="color:#75715e"># ...</span>
 <span style="color:#111">z</span> <span style="color:#f92672">=</span> <span style="color:#111">self</span><span style="color:#f92672">.</span><span style="color:#111">output_layer</span><span style="color:#111">(</span><span style="color:#111">c18</span><span style="color:#111">)</span>
-<span style="color:#00a8c8">return</span> <span style="color:#111">z</span>
+<span style="color:#00a8c8">return</span> <span style="color:#111">z</span></code></pre></div>
+<p></small></p>
 
-</code></pre></div><!-- raw HTML omitted -->
+<h2 id="resuts">Resuts</h2>
+
+<p>For the brave ones who reached here. Let see the results.</p>
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vel mattis lectus. Mauris vel diam quam. Vivamus blandit non neque ut lobortis. Curabitur dignissim nunc commodo tortor sagittis, non tincidunt magna aliquet. Quisque sem nisi, interdum sed pulvinar sit amet, tincidunt a ipsum. Donec quis elit dui. Nulla volutpat mattis suscipit. Etiam orci est, volutpat quis tristique id, euismod sit amet justo. Morbi ac placerat odio. Sed ut enim eget nunc efficitur fermentum quis ut tellus. Mauris eget interdum erat. Phasellus tempor ante orci.</p>
+
+<p>Etiam eget euismod eros, in tincidunt risus. Aenean ullamcorper commodo arcu nec volutpat. In vestibulum elit ac ligula tempor consequat. Praesent interdum tempor libero faucibus lobortis. Pellentesque ornare quam vitae sodales eleifend. Maecenas at lobortis tellus. Sed vel varius ipsum. Duis massa mi, dapibus et scelerisque id, vestibulum eu justo.</p>
+
+<p>Fusce a aliquam enim. Nam viverra eleifend egestas. Nam ac pretium neque, eget tempor mauris. Proin non gravida urna, quis interdum elit. Sed luctus elementum suscipit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean nibh turpis, auctor ac interdum pellentesque, ullamcorper vitae sapien. Donec volutpat arcu quis vehicula elementum. Praesent euismod, elit sed tincidunt ultrices, leo turpis blandit erat, ut faucibus sapien justo id odio. Aliquam eget sodales nibh. Quisque aliquet felis mi, a bibendum turpis tincidunt a. In et rhoncus massa. Pellentesque mollis risus eget erat dapibus, eu vestibulum sapien rhoncus. Donec congue porttitor tortor, eget sollicitudin mauris blandit volutpat. Praesent iaculis nec ante sollicitudin accumsan. Sed nec condimentum enim, non iaculis risus.</p>
+
+<p>Proin augue velit, placerat vitae sem eget, vulputate vulputate turpis. Ut fringilla turpis ligula, et molestie elit mollis id. Duis sodales dui quis eros consectetur tincidunt. Vestibulum tristique fringilla magna at euismod. Aliquam placerat lectus ut tortor accumsan suscipit. Vestibulum auctor, lorem id porttitor ornare, ex elit aliquet lorem, ac sagittis nunc enim eget mi. Curabitur mi metus, aliquam quis iaculis vel, porttitor sed nibh. Maecenas ac odio id erat blandit sagittis. Cras ante nulla, scelerisque eu tincidunt a, aliquam non justo.</p>
+
+<p>Vivamus eget augue maximus, pellentesque tellus laoreet, mattis orci. Suspendisse euismod, orci id placerat vehicula, lectus risus rutrum massa, sit amet vehicula turpis nunc eget odio. Integer sagittis justo in felis porttitor tristique. Fusce faucibus est vitae turpis eleifend ornare. Morbi consectetur urna non enim viverra, vehicula tempus mi vulputate. Nunc sodales lorem vitae placerat interdum. Nam ullamcorper at leo et dictum. Suspendisse massa ex, accumsan sed facilisis sit amet, dictum id libero. Aenean bibendum augue quis mauris vehicula ultricies et in nulla. Nullam gravida rutrum dolor, in egestas libero condimentum vel.</p>
 
 		</div>
 

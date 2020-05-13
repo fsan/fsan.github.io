@@ -53,8 +53,12 @@
 		</div>
 
 		<div class="markdown">
-			<p>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.</p>
+			
+
+<p>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.</p>
+
 <h2 id="tldr">TLDR;</h2>
+
 <ol>
 <li>Install pyperaptor</li>
 <li>Create Pipeline object</li>
@@ -62,19 +66,32 @@
 <li>Lock the Pipeline</li>
 <li>Execute the pipeline</li>
 </ol>
+
 <p><strong>Installation</strong></p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pip3 install pyperaptor
-</code></pre></div><p><strong>Code</strong></p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pip3 install pyperaptor</code></pre></div>
+<p><strong>Code</strong></p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">my_steps</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span> <span style="color:#f92672">...</span> <span style="color:#111">]</span>
 <span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_steps</span><span style="color:#111">,</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#111">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
-<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">my_input_generator</span><span style="color:#111">)</span>
-</code></pre></div><h2 id="example">Example</h2>
-<!-- raw HTML omitted -->
+<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">my_input_generator</span><span style="color:#111">)</span></code></pre></div>
+<h2 id="example">Example</h2>
+
+<div>
+<center>
+<script src="https://asciinema.org/a/14.js" id="asciicast-293066" async data-autoplay="true" data-size="small" theme="dracula"></script>
+</center>
+</div>
+
 <h2 id="introduction">Introduction</h2>
-<!-- raw HTML omitted -->
+
+<p><center>
+<img src="../../assets/images/raptor.jpg" width="200">
+</center></p>
+
 <p>A <strong>pipeline</strong> in PypeRaptor is a container that will carry inputs through the defined steps and return outputs.</p>
+
 <p>Each pipeline is mainly construct by adding <strong>nodes</strong>. Each node is responsible for referencing an operation and is not aware of it&rsquo;s surroudings. Nodes in PypeRaptor does not care what type of object it is carrying inside but it must implement a <code>__call__()</code> method.</p>
+
 <p>For example, you can use simple <strong>functions</strong>, <strong>lambdas</strong> or <strong>callable objects</strong>.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
 
@@ -97,8 +114,9 @@
 <span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipeline</span><span style="color:#111">)</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">push</span><span style="color:#111">(</span><span style="color:#ae81ff">1</span><span style="color:#111">)</span>
-<span style="color:#75715e"># 1</span>
-</code></pre></div><p><strong>Nodes</strong> can be added to the <strong>pipeline</strong> by <code>p.add</code> method or through the <code>+=</code> operator or in constructor.</p>
+<span style="color:#75715e"># 1</span></code></pre></div>
+<p><strong>Nodes</strong> can be added to the <strong>pipeline</strong> by <code>p.add</code> method or through the <code>+=</code> operator or in constructor.</p>
+
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">some_method</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
 	<span style="color:#00a8c8">return</span> <span style="color:#111">x</span>
 
@@ -129,12 +147,14 @@
 </span>
 <span style="color:#75715e">#Using map</span>
 <span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">list</span><span style="color:#111">(</span><span style="color:#111">map</span><span style="color:#111">(</span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">,</span> <span style="color:#111">function_list</span><span style="color:#111">))</span></span></code></pre></div>
+
 <p>The method <code>p.push()</code> will execute the whole pipe for one single item. Note that the pipeline must be locked with <code>p.lock()</code> before execution.
 For executing several item at once the <strong>pipeline</strong> provides the <code>p.process</code> method.</p>
+
 <p>When using <code>p.process</code>, data can be provided from outside or inside the <strong>pipeline</strong>.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">([</span><span style="color:#ae81ff">1</span><span style="color:#111">,</span> <span style="color:#ae81ff">2</span><span style="color:#111">,</span> <span style="color:#ae81ff">3</span><span style="color:#111">])</span> <span style="color:#75715e"># Using a list</span>
-<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span> <span style="color:#75715e"># Using a generator</span>
-</code></pre></div><p>It is important to notice that as PypeRaptor multithreaded features appear, it becomes more interesting to add the generator to the pipeline itself.</p>
+<span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span> <span style="color:#75715e"># Using a generator</span></code></pre></div>
+<p>It is important to notice that as PypeRaptor multithreaded features appear, it becomes more interesting to add the generator to the pipeline itself.</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#00a8c8">def</span> <span style="color:#75af00">some_slow_generator</span><span style="color:#111">():</span>
 	<span style="color:#75715e"># doing something slow</span>
 	<span style="color:#00a8c8">return</span> <span style="color:#111">result</span>
@@ -143,10 +163,11 @@ For executing several item at once the <strong>pipeline</strong> provides the <c
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">some_slow_generator</span><span style="color:#111">)</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">add</span><span style="color:#111">(</span><span style="color:#111">some_function</span><span style="color:#111">)</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
-<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span>
+<span style="color:#111">results</span> <span style="color:#f92672">=</span> <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span></code></pre></div>
+<h2 id="going-multithread">Going multithread</h2>
 
-</code></pre></div><h2 id="going-multithread">Going multithread</h2>
 <p>It is so hard going multithread that it will take you about 5 seconds</p>
+
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#75715e"># a foo pipeline</span>
 <span style="color:#111">my_pipeline</span> <span style="color:#f92672">=</span> <span style="color:#111">[</span>
 	<span style="color:#111">(</span><span style="color:#00a8c8">lambda</span> <span style="color:#111">x</span><span style="color:#111">:</span> <span style="color:#111">x</span><span style="color:#111">),</span>
@@ -162,8 +183,11 @@ For executing several item at once the <strong>pipeline</strong> provides the <c
 <span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">(</span><span style="color:#111">my_pipeline</span><span style="color:#111">,</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">10</span><span style="color:#111">)</span>
 </span><span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">range</span><span style="color:#111">(</span><span style="color:#ae81ff">10</span><span style="color:#111">))</span></code></pre></div>
+
 <p><em>I guess it was easy. Right?</em></p>
+
 <h2 id="dealing-with-racing-conditions">Dealing with racing conditions</h2>
+
 <p>Race conditions may arise if some resource is used by more than one thread or process.
 For example:</p>
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#f92672">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Device</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
@@ -185,9 +209,10 @@ For example:</p>
 
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">a_generator</span><span style="color:#111">())</span>
-<span style="color:#75715e"># 1 2 3 465 8  7 9 10</span>
-</code></pre></div><p>This example fails because the output device, in this case the <code>stdout</code> is being used bymany threads at same time.
+<span style="color:#75715e"># 1 2 3 465 8  7 9 10</span></code></pre></div>
+<p>This example fails because the output device, in this case the <code>stdout</code> is being used bymany threads at same time.
 To solve this problem let&rsquo;s guarantee that this will not happen</p>
+
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#f92672">from</span> <span style="color:#111">pyperaptor</span> <span style="color:#00a8c8">import</span> <span style="color:#111">Pipeline</span><span style="color:#111">,</span> <span style="color:#111">Device</span><span style="color:#111">,</span> <span style="color:#111">Node</span>
 </span>
 <span style="color:#00a8c8">def</span> <span style="color:#75af00">sum1</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
@@ -211,18 +236,19 @@ To solve this problem let&rsquo;s guarantee that this will not happen</p>
 
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">(</span><span style="color:#111">a_generator</span><span style="color:#111">())</span>
 <span style="color:#75715e"># 1 2 3 4 5 10 7 8 9 6</span></code></pre></div>
+
 <p>A <strong>Device</strong> may have multiple resources available. For example a buffer with multiple writers, or a pool of resources or a hardware resource.
 If a <strong>node</strong> needs to acquire one resource, you can use a <strong>Device</strong> specifying how many are available. The default is 1.</p>
-<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">
-<span style="color:#111">ANY_RESOURCE</span> <span style="color:#f92672">=</span> <span style="color:#111">Device</span><span style="color:#111">(</span><span style="color:#d88200">&#34;Some Name&#34;</span><span style="color:#111">,</span> <span style="color:#ae81ff">5</span><span style="color:#111">)</span>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#111">ANY_RESOURCE</span> <span style="color:#f92672">=</span> <span style="color:#111">Device</span><span style="color:#111">(</span><span style="color:#d88200">&#34;Some Name&#34;</span><span style="color:#111">,</span> <span style="color:#ae81ff">5</span><span style="color:#111">)</span>
 
 <span style="color:#111">p</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">()</span>
 <span style="color:#111">p</span> <span style="color:#f92672">+=</span> <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">a_function</span><span style="color:#111">)</span> <span style="color:#f92672">+</span> \
-     <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">other_function</span><span style="color:#111">,</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">ANY_RESOURCE</span><span style="color:#111">)</span>
+     <span style="color:#111">Node</span><span style="color:#111">(</span><span style="color:#111">other_function</span><span style="color:#111">,</span> <span style="color:#111">dev</span><span style="color:#f92672">=</span><span style="color:#111">ANY_RESOURCE</span><span style="color:#111">)</span></code></pre></div>
+<h2 id="integrating-multiple-pipelines">Integrating multiple Pipelines</h2>
 
-</code></pre></div><h2 id="integrating-multiple-pipelines">Integrating multiple Pipelines</h2>
 <p>It is possible to use PypeRaptor <strong>Pipelines</strong> inside PypeRaptor <strong>Pipelines</strong>.
 This may be useful for organizing and scaling processing where it matters.</p>
+
 <p>Check the following ludic siutation:
 You may take awhile to generate enough information to send to some other job.
 But once you start you want it all done as fast as possible.</p>
@@ -273,8 +299,9 @@ But once you start you want it all done as fast as possible.</p>
 <span style="color:#111">p</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 <span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 
-<span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span>
-</code></pre></div><p>This will yield the following output:</p>
+<span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">()</span></code></pre></div>
+<p>This will yield the following output:</p>
+
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">calling buffer
 calling buffer
 calling buffer
@@ -285,12 +312,16 @@ calling buffer
 </span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_1
 </span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_3
 </span><span style="display:block;width:100%;background-color:#e1e1e1">doing heavy work at  ThreadPoolExecutor-4_4</span></code></pre></div>
+
 <p>The highlighted area is done is parallel as indicated by the names of ThreadPoolExecutors.</p>
+
 <h2 id="joining-multithread-pipelines">Joining multithread pipelines</h2>
+
 <p>If you wish to scale threads in a tree-fashion way you may join different pipelines with different threads.
 In the following example the first pipeline <code>q</code> will generate a hundred of elements to be processed by the
 second pipeline <code>p</code>.
 This will cause 10 threads to be launched in your system. <code>(number of parent threads) ** (number of child threads) + (one management thread per pipeline)</code> <code>(2**3) + 2</code></p>
+
 <div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#00a8c8">def</span> <span style="color:#75af00">sum_set</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">):</span>
     <span style="color:#00a8c8">return</span> <span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">x</span><span style="color:#111">)</span>
 
@@ -309,21 +340,30 @@ This will cause 10 threads to be launched in your system. <code>(number of paren
 <span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">q</span> <span style="color:#f92672">=</span> <span style="color:#111">Pipeline</span><span style="color:#111">([</span><span style="color:#111">get_hundred_of</span><span style="color:#111">,</span> <span style="color:#111">p</span><span style="color:#111">,</span> <span style="color:#111">sum_set</span><span style="color:#111">],</span> <span style="color:#111">parallel</span><span style="color:#f92672">=</span><span style="color:#00a8c8">True</span><span style="color:#111">,</span> <span style="color:#111">workers</span><span style="color:#f92672">=</span><span style="color:#ae81ff">2</span><span style="color:#111">)</span>
 </span><span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">lock</span><span style="color:#111">()</span>
 <span style="display:block;width:100%;background-color:#e1e1e1"><span style="color:#111">sum</span><span style="color:#111">(</span><span style="color:#111">q</span><span style="color:#f92672">.</span><span style="color:#111">process</span><span style="color:#111">([</span><span style="color:#ae81ff">1</span><span style="color:#111">]</span><span style="color:#f92672">*</span><span style="color:#ae81ff">100</span><span style="color:#111">))</span></span></code></pre></div>
+
 <h2 id="change-log">Change Log</h2>
-<h3 id="pyperaptor-013httpsgithubcomfsanpyperaptorreleasestag013"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.3">PypeRaptor 0.1.3</a></h3>
+
+<h3 id="pyperaptor-0-1-3-https-github-com-fsan-pyperaptor-releases-tag-0-1-3"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.3">PypeRaptor 0.1.3</a></h3>
+
 <ul>
 <li>Normalize pipeline to pipeline integration. Now it is easier and more intuitive to integrate one <strong>Pipeline</strong> into another</li>
 <li>Added travis CI integration</li>
 </ul>
-<h3 id="pyperaptor-012httpsgithubcomfsanpyperaptorreleasestag012"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.2">PypeRaptor 0.1.2</a></h3>
+
+<h3 id="pyperaptor-0-1-2-https-github-com-fsan-pyperaptor-releases-tag-0-1-2"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.2">PypeRaptor 0.1.2</a></h3>
+
 <ul>
 <li>Added alternative to provide list of function into constructor</li>
 </ul>
-<h3 id="pyperaptor-011httpsgithubcomfsanpyperaptorreleasestag011"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.1">PypeRaptor 0.1.1</a></h3>
+
+<h3 id="pyperaptor-0-1-1-https-github-com-fsan-pyperaptor-releases-tag-0-1-1"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.1">PypeRaptor 0.1.1</a></h3>
+
 <ul>
 <li>First official release</li>
 </ul>
-<h3 id="pyperaptor-010httpsgithubcomfsanpyperaptorreleasestag010"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.0">PypeRaptor 0.1.0</a></h3>
+
+<h3 id="pyperaptor-0-1-0-https-github-com-fsan-pyperaptor-releases-tag-0-1-0"><a href="https://github.com/fsan/pyperaptor/releases/tag/0.1.0">PypeRaptor 0.1.0</a></h3>
+
 <ul>
 <li>Pipelines with multithread support by configuration</li>
 <li>Structured approach for creating pipelines</li>

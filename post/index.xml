@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Sun, 26 Apr 2020 08:42:06 -0300</lastBuildDate>
+    <lastBuildDate>Tue, 12 May 2020 08:33:06 -0300</lastBuildDate>
     
 	<atom:link href="//fsan.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,11 +15,13 @@
     <item>
       <title>UNET CT Scan Segmentation using TensorFlow 2</title>
       <link>//fsan.github.io/post/unet_ct_scan_segmentation_tf2/</link>
-      <pubDate>Sun, 26 Apr 2020 08:42:06 -0300</pubDate>
+      <pubDate>Tue, 12 May 2020 08:33:06 -0300</pubDate>
       
       <guid>//fsan.github.io/post/unet_ct_scan_segmentation_tf2/</guid>
-      <description>TL;DR; This is a quick tour over tensorflow 2 features and an UNET implementation using its framework and data pipeline. Here is github source and results:
-Migrating from TF 1.x to 2.x was not as easy as I thought it would be. But certainly not because of TF2. There are lots of perks and tricks you have to learn to use TF1 and they are necessary anymore. So at first you get stuck and starting thinking where you should put all that boilerplate code from before.</description>
+      <description>TL;DR; This is a quick tour over Tensorflow 2 features and an UNET implementation using its framework and data pipeline.
+I will make the notebook available on github available, after some clean up. But I am pre-publishing this for reference because I do not know when I will have time to make the source prettier.
+ Here is github source and results: github.com/fsan/UNET_Remake
+Migrating from TF 1.x to 2.x was not as easy as I thought it would be.</description>
     </item>
     
     <item>
@@ -39,7 +41,8 @@ To run this base project you will need:
       <pubDate>Sun, 26 Jan 2020 13:56:09 -0300</pubDate>
       
       <guid>//fsan.github.io/post/emscripten_and_webassembly/</guid>
-      <description>WebAssembly WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.
+      <description>WebAssembly  
+WebAssembly is now supported on major browsers and enables a higher performance than processing power due to its low-level binary executed at client-side.
 WebAssemly uses modules as the distributable, loadable, and executable unit of code. Multiple module instances can access the same shared state which is the basis for dynamic linking in WebAssembly (source).
 Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using LLVM, that lets you run C and C++ on the web at near-native speed without plugins (source).</description>
     </item>
@@ -53,7 +56,7 @@ Emscripten is a toolchain for compiling to asm.js and WebAssembly, built using L
       <description>PypeRaptor is a Python3 library that provides a quick way of building pipelines from multithreaded processing withsome concurrency control.
 TLDR;  Install pyperaptor Create Pipeline object Create Node(s) object(s) containing the function to be executed. Lock the Pipeline Execute the pipeline  Installation
 pip3 install pyperaptor Code
-my_steps = [ ... ] p = Pipeline(my_steps, parallel=True, workers=10) p.lock() results = p.process(my_input_generator) Example Introduction A pipeline in PypeRaptor is a container that will carry inputs through the defined steps and return outputs.</description>
+my_steps = [ ... ] p = Pipeline(my_steps, parallel=True, workers=10) p.lock() results = p.process(my_input_generator) Example      Introduction</description>
     </item>
     
   </channel>
