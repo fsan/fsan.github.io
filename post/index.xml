@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Tue, 12 May 2020 08:33:06 -0300</lastBuildDate>
+    <lastBuildDate>Mon, 11 May 2020 20:33:06 -0300</lastBuildDate>
     
 	<atom:link href="//fsan.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,13 +15,13 @@
     <item>
       <title>UNET CT Scan Segmentation using TensorFlow 2</title>
       <link>//fsan.github.io/post/unet_ct_scan_segmentation_tf2/</link>
-      <pubDate>Tue, 12 May 2020 08:33:06 -0300</pubDate>
+      <pubDate>Mon, 11 May 2020 20:33:06 -0300</pubDate>
       
       <guid>//fsan.github.io/post/unet_ct_scan_segmentation_tf2/</guid>
-      <description>TL;DR; This is a quick tour over Tensorflow 2 features and an UNET implementation using its framework and data pipeline.
+      <description>preview version - final version coming soon
+TL;DR; This is a quick tour over Tensorflow 2 features and an UNET implementation using its framework and data pipeline.
 I will make the notebook available on github available, after some clean up. But I am pre-publishing this for reference because I do not know when I will have time to make the source prettier.
- Here is github source and results: github.com/fsan/UNET_Remake
-Migrating from TF 1.x to 2.x was not as easy as I thought it would be.</description>
+ Here is github source and results: github.</description>
     </item>
     
     <item>
