@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Mon, 11 May 2020 20:33:06 -0300</lastBuildDate>
+    <lastBuildDate>Wed, 13 May 2020 09:13:29 -0300</lastBuildDate>
     
 	<atom:link href="//fsan.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Pyratefacts</title>
+      <link>//fsan.github.io/post/pyratefacts/</link>
+      <pubDate>Wed, 13 May 2020 09:13:29 -0300</pubDate>
+      
+      <guid>//fsan.github.io/post/pyratefacts/</guid>
+      <description>Pyratefacts (read py-artifacts) is a very simple library. There are options which are usually linked to some proprietary version or just do half of the job.
+Everybody needs sometime to download a file, check if it&amp;rsquo;s ok, usually uncompressed it, place somewhere and clean downloaded files. We all do this kind of stuff. And we may use this strategy as some strategy por postpone some build steps, add extra resources to your application or library that may not be used by everybody, or reduce container sizes at container hub repo.</description>
+    </item>
     
     <item>
       <title>UNET CT Scan Segmentation using TensorFlow 2</title>

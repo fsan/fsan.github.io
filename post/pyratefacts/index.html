@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pyratefacts - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Pyratefacts" />
+<meta property="og:description" content="Library to download and manage (extra) files" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="//fsan.github.io/post/pyratefacts/" />
+<meta property="article:published_time" content="2020-05-13T09:13:29-03:00" />
+<meta property="article:modified_time" content="2020-05-13T09:13:29-03:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Pyratefacts"/>
+<meta name="twitter:description" content="Library to download and manage (extra) files"/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/main.css" />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="//fsan.github.io/js/main.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="//fsan.github.io/">fsan</a></h1>
+	<div class="site-description"><h2></h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/fsan" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+			<li>
+				<a href="../../">Home</a>
+			</li>
+			
+			<li>
+				<a href="../../post/pyperaptor">PypeRaptor</a>
+			</li>
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Pyratefacts</h1>
+			<div class="meta">Posted at &mdash; May 13, 2020</div>
+		</div>
+
+		<div class="markdown">
+			
+
+<p><strong>Pyratefacts</strong> (<i>read py-artifacts</i>) is a very simple library.
+There are options which are usually linked to some proprietary version or just do half of the job.</p>
+
+<p>Everybody needs sometime to download a file, check if it&rsquo;s ok, usually uncompressed it, place somewhere and clean downloaded files. We all do this kind of stuff.
+And we may use this strategy as some strategy por postpone some build steps, add extra resources to your application or library that may not be used by everybody, or reduce container sizes at container hub repo.
+Pyratefacts is a python library that can be easily integrated with a python application or used in a script for setting things up.</p>
+
+<h1 id="features">Features</h1>
+
+<ul>
+<li>Download from http servers or copy from local storage</li>
+<li>Uncompress (any type file supported from shutils)</li>
+<li>Hash verification (any hash algorithm supported from hashlib)</li>
+<li>Download clean up</li>
+</ul>
+
+<h1 id="installation">Installation</h1>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pip install pyratefacts</code></pre></div>
+<h1 id="usage">Usage</h1>
+
+<h2 id="artifacts-json">Artifacts.json</h2>
+
+<p>Create an json files with a list of artifacts you wish to download within $&ldquo;artifacts&rdquo;$ entry.
+Optionally you can specify a $&ldquo;datafile&rdquo;$ which is basically a file which stores if you have already downloaded that artifact or not. Very useful if you are going to embedded pyratefacts in other application or library and you want to manage which artifacts are locally available.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json"><span style="color:#111">{</span>
+    <span style="color:#f92672">&#34;artifacts&#34;</span> <span style="color:#111">:</span> <span style="color:#111">[</span>
+         <span style="color:#111">{</span> 
+            <span style="color:#f92672">&#34;name&#34;</span><span style="color:#111">:</span> <span style="color:#d88200">&#34;SomeLargeFileOverInternet&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;origin&#34;</span><span style="color:#111">:</span> <span style="color:#d88200">&#34;http&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;url&#34;</span><span style="color:#111">:</span> <span style="color:#d88200">&#34;http://a_strange_place_in_the_internet/a_very_big_file.zip&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;hash_type&#34;</span> <span style="color:#111">:</span> <span style="color:#d88200">&#34;sha256&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;digest&#34;</span> <span style="color:#111">:</span> <span style="color:#d88200">&#34;5B3BD68C4F0639446C6E6C2E2B0018BAB3D3FFE387081A6030C9EF505115B433&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;destiny&#34;</span> <span style="color:#111">:</span> <span style="color:#d88200">&#34;/tmp/a_very_big_file.zip&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;uncompress&#34;</span><span style="color:#111">:</span> <span style="color:#00a8c8">true</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;uncompress_dir&#34;</span><span style="color:#111">:</span> <span style="color:#d88200">&#34;/tmp/my_uncompressed_files_folder/&#34;</span><span style="color:#111">,</span>
+            <span style="color:#f92672">&#34;teardown&#34;</span><span style="color:#111">:</span> <span style="color:#d88200">&#34;clear_destiny&#34;</span>
+        <span style="color:#111">}</span>
+    <span style="color:#111">],</span>
+    <span style="color:#f92672">&#34;datafile&#34;</span> <span style="color:#111">:</span> <span style="color:#d88200">&#34;/tmp/datafile.pkl&#34;</span> 
+<span style="color:#111">}</span></code></pre></div>
+<h2 id="downloading">Downloading</h2>
+
+<p>To download your artifacts you will need a $pyratefacts.Manager$ objects.
+The two options to download artifacts are:
+- Download each one by name with the name specified in your $artifacts.json$
+- Download them all</p>
+
+<h3 id="example">Example:</h3>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python3" data-lang="python3"><span style="color:#f92672">import</span> <span style="color:#111">pyratefacts</span>
+
+<span style="color:#111">artifacts_json_path</span> <span style="color:#f92672">=</span> <span style="color:#d88200">&#39;/tmp/artifacts.json&#39;</span>
+
+<span style="color:#111">manager</span> <span style="color:#f92672">=</span> <span style="color:#111">pyratefacts</span><span style="color:#f92672">.</span><span style="color:#111">Manager</span><span style="color:#111">(</span><span style="color:#111">artifacts_json_path</span><span style="color:#111">)</span>
+
+<span style="color:#75715e"># download one file by artifact name</span>
+<span style="color:#111">manager</span><span style="color:#f92672">.</span><span style="color:#111">prepare</span><span style="color:#111">(</span><span style="color:#d88200">&#39;SomeLargeFileOverInternet&#39;</span><span style="color:#111">)</span>
+
+<span style="color:#75715e"># download all files in artifacts.json</span>
+<span style="color:#111">manager</span><span style="color:#f92672">.</span><span style="color:#111">prepare_all</span><span style="color:#111">()</span>
+
+<span style="color:#75715e"># store the current state of files as view by the manager</span>
+<span style="color:#111">manager</span><span style="color:#f92672">.</span><span style="color:#111">save_datafile</span><span style="color:#111">()</span> 
+
+<span style="color:#75715e"># Query if a artifact is already loaded</span>
+<span style="color:#00a8c8">for</span> <span style="color:#111">art</span> <span style="color:#f92672">in</span> <span style="color:#111">manager</span><span style="color:#f92672">.</span><span style="color:#111">artifact_list</span><span style="color:#111">:</span>
+	<span style="color:#00a8c8">if</span> <span style="color:#111">art</span><span style="color:#f92672">.</span><span style="color:#111">name</span> <span style="color:#f92672">==</span> <span style="color:#111">name</span><span style="color:#111">:</span>
+		<span style="color:#00a8c8">return</span> <span style="color:#111">art</span><span style="color:#f92672">.</span><span style="color:#111">available</span>
+
+<span style="color:#111">print</span><span style="color:#111">(</span><span style="color:#d88200">&#39;done&#39;</span><span style="color:#111">)</span></code></pre></div>
+<p>If datafile exists when artifacts.json is loaded, it will retrieve the last state saved.</p>
+
+<h1 id="source">Source</h1>
+
+<p>Pyratefacts is available in my github repository: <a href="https://github.com/fsan/pyratefacts" target="_blank"> <a href="https://github.com/fsan/pyratefacts">https://github.com/fsan/pyratefacts</a> </a>
+Feel free to contribute.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>That&rsquo;s it. Pretty simple I guess. There are lots of space for improvements, such as supporting S3, Blob and other remote storage systems.
+If you have any suggestions or find any issues, leave an issue in my github repo for this project or make some pull request. See you!</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'https-fsan-github-io';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+		Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	<div class="footer wrapper">
+	<nav class="nav">
+		<div> © 2020 | 
+			<a href="https://github.com/vividvilla/ezhil">Ezhil theme</a> | Built with <a href="https://gohugo.io">Hugo</a></div> 
+	</nav>
+</div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-3512812-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+<script>feather.replace()</script>
+</body>
+</html>
