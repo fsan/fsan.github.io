@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Conan Quick guide - fsan</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta property="og:title" content="Conan Quick guide" />
+<meta property="og:description" content="Just enought information to get you started with Conan.
+Package managing for C&#43;&#43; is quite difficult, specially while working of several different projects with different dependencies. The objective of conan is to provide some package management for this situation. It is pretty similar in concept to pip and npm but it does also provide some extra functionalities such as generators.
+Installing Conan Installing conan is simple. Only pip install it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="//fsan.github.io/post/til_conan_01/" />
+<meta property="article:published_time" content="2020-10-31T15:35:51-03:00" />
+<meta property="article:modified_time" content="2020-10-31T15:35:51-03:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Conan Quick guide"/>
+<meta name="twitter:description" content="Just enought information to get you started with Conan.
+Package managing for C&#43;&#43; is quite difficult, specially while working of several different projects with different dependencies. The objective of conan is to provide some package management for this situation. It is pretty similar in concept to pip and npm but it does also provide some extra functionalities such as generators.
+Installing Conan Installing conan is simple. Only pip install it."/>
+<link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:200,300" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="//fsan.github.io/css/main.css" /><link rel="stylesheet" type="text/css" href="//fsan.github.io/css/dark.css" media="(prefers-color-scheme: dark)" />
+
+	<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+	<script src="//fsan.github.io/js/main.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+</head>
+
+<body>
+	<div class="container wrapper post">
+		<div class="header">
+	<h1 class="site-title"><a href="//fsan.github.io/">fsan</a></h1>
+	<div class="site-description"><h2></h2><nav class="nav social">
+			<ul class="flat"><a href="https://github.com/fsan" title="Github"><i data-feather="github"></i></a></ul>
+		</nav>
+	</div>
+
+	<nav class="nav">
+		<ul class="flat">
+			
+		</ul>
+	</nav>
+</div>
+
+
+		<div class="post-header">
+			<h1 class="title">Conan Quick guide</h1>
+			<div class="meta">Posted at &mdash; Oct 31, 2020</div>
+		</div>
+
+		<div class="markdown">
+			
+
+<p>Just enought information to get you started with Conan.</p>
+
+<p>Package managing for C++ is quite difficult, specially while working of several different projects with different dependencies.
+The objective of conan is to provide some package management for this situation. It is pretty similar in concept to pip and npm but it does also provide some extra functionalities such as <strong>generators</strong>.</p>
+
+<h2 id="installing-conan">Installing Conan</h2>
+
+<p>Installing conan is simple. Only pip install it.
+I particularly do not like to add stuff to my base pip environment and as I regularly experiment with other tools I usually create environments for this kind of stuff. I used conda to create my environment, but it is totally optional.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conda create -n cpp_env python=3.8
+
+pip install conan</code></pre></div>
+<h2 id="basic-usage">Basic usage</h2>
+
+<h3 id="finding-packages">Finding packages</h3>
+
+<p>Locally:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan search &lt;package_name&gt;</code></pre></div>
+<p>Conan Center</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan search &lt;package_name&gt; --remote=&lt;remote_name&gt;
+
+# example
+conan search opencv --remote=conan-center</code></pre></div>
+<p>If you wish you may use it&rsquo;s web interface: <a href="https://conan.io/center">https://conan.io/center</a></p>
+
+<p>To list the package properties:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan inspect &lt;package_name&gt; --remote=&lt;remote_name&gt;
+
+# example
+conan inspect opencv/4.3.0@conan/stable --remote=conan-center</code></pre></div>
+<h3 id="installing-other-repositories">Installing other repositories</h3>
+
+<p>Some packages may not be available from Conan source or may have only its binary distributed (or maybe you wish to get the precompiled binaries). You can add other remotes as adding <strong>bincrafters</strong> below:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan</code></pre></div>
+<p>More info at <a href="https://bincrafters.github.io/2017/06/06/using-bincrafters-conan-repository/">BinCrafters</a></p>
+
+<p>To list available remotes</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conda remote list</code></pre></div>
+<h3 id="creating-package-list">Creating  package list</h3>
+
+<p>You should create a $conanfile.txt$ in your project. It will have similar function as requirements.txt for python or packages.json for node.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">[requires]
+openssl/1.0.2s
+opencv/4.3.0@conan/stable
+sdl2/2.0.12@bincrafters/stable
+
+[generators]
+cmake</code></pre></div>
+<p>Risking to state the obvious, requires define what packages you want and generators will allow you to create the files for building from cmake, visual studio, premake, make, etc&hellip;</p>
+
+<p>An important reference for this is <a href="https://docs.conan.io/en/latest/reference/generators.html#generators-reference">Conan Generators page</a></p>
+
+<p>There are some useful generators for documenting your application such as <a href="https://docs.conan.io/en/latest/reference/generators/markdown.html">markdown</a> that might be worth checking.</p>
+
+<h3 id="download-dependencies-and-creating-configuration-files">Download dependencies and creating configuration files</h3>
+
+<p>For organization it is usually nice to have build files inside a separate folder (usually $build$).
+So if your $conanfile.txt$ is at the root of your project you would run</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan install ..</code></pre></div>
+<p>But if prebuilt binaries are not available you will receive an &ldquo;BinaryMissing&rdquo; error. So you would need build the dependencies as:</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">conan install .. --build=missing</code></pre></div>
+<h2 id="building-the-application">Building the application</h2>
+
+<p>You may be using other building systems, but for this TIL I will use cmake because it&rsquo;s what I have here.
+For CMake you will need a $CMakeLists.txt$. As we previously added cmake generator, conan will create a $conanbuildinfo.cmake$ so we need to include it in our cmake configuration at the root of our src.</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">cmake_minimum_required(VERSION 3.10)
+
+project(example_app)
+add_definitions(&#34;-std=c++14&#34;)
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+# add the executable
+add_executable(example_app main.cpp)
+target_link_libraries(example_app ${CONAN_LIBS})</code></pre></div>
+<p>Now from the build folder</p>
+<div class="highlight"><pre style="color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">cmake ..
+cmake --build .</code></pre></div>
+<p>If everything is fine with your dependencies your application should be built.</p>
+
+		</div>
+
+		<div class="post-tags">
+			
+				
+			
+		</div>
+		<div id="disqus_thread"></div>
+<script type="text/javascript">
+	(function () {
+		
+		
+		if (window.location.hostname == "localhost")
+			return;
+
+		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+		var disqus_shortname = 'https-fsan-github-io';
+		dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+		Disqus.</a></noscript>
+<a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+	<div class="footer wrapper">
+	<script data-ad-client="ca-pub-5019619948820410" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</div><script>feather.replace()</script>
+</body>
+</html>

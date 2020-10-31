@@ -7,10 +7,17 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2020</copyright>
-    <lastBuildDate>Wed, 13 May 2020 09:13:29 -0300</lastBuildDate>
-    
-	<atom:link href="//fsan.github.io/index.xml" rel="self" type="application/rss+xml" />
-    
+    <lastBuildDate>Sat, 31 Oct 2020 15:35:51 -0300</lastBuildDate><atom:link href="//fsan.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Conan Quick guide</title>
+      <link>//fsan.github.io/post/til_conan_01/</link>
+      <pubDate>Sat, 31 Oct 2020 15:35:51 -0300</pubDate>
+      
+      <guid>//fsan.github.io/post/til_conan_01/</guid>
+      <description>Just enought information to get you started with Conan.
+Package managing for C++ is quite difficult, specially while working of several different projects with different dependencies. The objective of conan is to provide some package management for this situation. It is pretty similar in concept to pip and npm but it does also provide some extra functionalities such as generators.
+Installing Conan Installing conan is simple. Only pip install it.</description>
+    </item>
     
     <item>
       <title>Pyratefacts</title>
